@@ -25,20 +25,48 @@ ui <- navbarPage(
                                      "Width of bins:",
                                      min = 1,
                                      max = 50,
-                                     value = 30)
+                                     value = 5)
                      ),
                      mainPanel(plotOutput("distPlot")))
              )),
     tabPanel("Discussion",
              titlePanel("Discussion Title"),
-             p("Tour of the modeling choices you made and 
+             p("To be modified later...
+             Tour of the modeling choices you made and 
               an explanation of why you made them")),
     tabPanel("About", 
              titlePanel("About"),
              h3("Project Background and Motivations"),
-             p("Hello, this is where I talk about my project."),
+             p("Link to Github repo: 
+               https://github.com/jberry2/milestones_final_project.git.
+               For this project I intend to study American attitudes
+               towards China over a longitudinal time period. I am 
+               particuarly interested in how identity factors into American
+               attitudes to China. For instance, is a white Republican from
+               Alabama more likely to have negative attitudes towards China
+               than an Asian-American Democrat Californian? In other words,
+               how might Social Identity Theory predict American attitudes
+               to China on different dimensions? I plan to use a number of
+               datasets to answer these questions including the American 
+               National Election Studies (ANES) timseries datasets and 
+               the Pew Global Attitudes surveys. Both of these datasets have
+               thousands of participants and are conducted by well-respected 
+               research organizations within the academic community. ANES is
+               conducted by a combined team from the University of Michigan and
+               Stanford University. It is run before and after every national 
+               presidential election in the United States. The Pew Global
+               Attitudes & Trends Survey is conducted by the Pew Research 
+               Center on a biannual basis and includes respondents from over
+               15 countries each iteration. My hope is to combine the
+               relevant datasets over time and see how attitudes towards
+               China have changed longitudinally and specifically whether
+               there have been correlations in changes in American public
+               opinion and increased funding in Chinese public diplomacy
+               efforts. This final project for Government 50 will constitute
+               one component of my Senior Thesis, required for graduation"),
              h3("About Me"),
-             p("My name is Joshua Berry and I study political science. 
+             p("My name is Joshua Berry and I study political science at
+             Harvard College. 
              You can reach me at jberry@college.harvard.edu.")))
 
 # Define server logic required to draw a histogram
