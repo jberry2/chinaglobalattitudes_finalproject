@@ -1,0 +1,55 @@
+File Manifest for ICPSR 36806
+
+Smeltz, Dina, Karl Friedhoff, Craig J. Kafura, Gregory Holyk, and Joshua W.
+Busby. 2016 Chicago Council Survey of American Public Opinion on U.S.
+Foreign Policy. ICPSR36806-v1. Ann Arbor, MI: Inter-university Consortium
+for Political and Social Research [distributor], 2018-04-13.
+http://doi.org/10.3886/ICPSR36806.v1
+
+
+Study-level Documentation
+
+    Filename                            Record  Record    Var.    Date        MD5
+                                        Length  Count     Count   Updated     Checksum
+
+    36806-descriptioncitation.pdf       -       -         -       2018-04-23  -
+
+    36806-manifest.txt                  -       -         -       daily       -
+
+
+DS0001 2016 Chicago Council Survey of American Public Opinion on U.S.
+Foreign Policy
+
+    Filename                            Record  Record    Var.    Date        MD5
+                                        Length  Count     Count   Updated     Checksum
+
+    36806-0001-Codebook.pdf             -       -         -       2018-04-13  906e4ed8dd251788cd5ddd30c9f04e84
+
+    36806-0001-Data.dta                 -       2,061     325     2018-04-13  cbd1180718346c834b0657eca5fca0a2
+
+    36806-0001-Data.rda                 -       2,061     325     2018-04-13  e023b3e1f0ac07f7e1c317f868d3722e
+
+    36806-0001-Data.sav                 -       2,061     325     2018-04-13  cf073dc01a014f75cc4100818886f4ea
+
+    36806-0001-Data.stc                 -       2,061     325     2018-04-13  eb039814804b7599da171af3d0649556
+
+    36806-0001-Data.tsv                 -       2,061     325     2018-04-13  bfb90928cec5432d7dd43b00b42dbe3c
+
+    36806-0001-Data.txt                 647     2,061     325     2018-04-13  9ec9ad77179ce7de01f6c9af01e62cee
+
+    36806-0001-Questionnaire.pdf        -       -         -       2018-04-13  1c8008deaac5c2e2db923f5103b25485
+
+    36806-0001-Report.pdf               -       -         -       2018-04-13  c27da6a2dd9bf72f073eff8a15aab1bf
+
+    36806-0001-Setup.dct                -       -         -       2018-04-13  803c2a930455344039a98aeffcfb0e74
+
+    36806-0001-Setup.do                 -       -         -       2018-04-13  b160360bb190c61554698c8a96178103
+
+    36806-0001-Setup.sas                -       -         -       2018-04-13  5eadd546d39228c2a6b5013df9cfcc28
+
+    36806-0001-Setup.sps                -       -         -       2018-04-13  1b25a53992a9e3558a6051440793771e
+
+    36806-0001-Supplemental_syntax.do   -       -         -       2018-04-13  4898150d9dafd569da760f49d6c63ebf
+
+    36806-0001-Supplemental_syntax.sas  -       -         -       2018-04-13  9a7ba8d8ae5e39deb31b3f05a4fd1751
+

@@ -10,12 +10,16 @@
 library(shiny)
 library(tidyverse)
 library(foreign)
+library(shinythemes)
 
 anes <- readRDS("chinese_military_threat.rds")
+ccouncil <- 
+    load("Chicago_Council/ICPSR_36806/DS0001/36806-0001-Data.rda")
 
 # Define UI for application that draws a histogram
 ui <- navbarPage(
     "Final Project Title",
+    theme = shinytheme("slate"),
     tabPanel("Model",
              fluidPage(
                  titlePanel("American Perspectives on China"),
@@ -24,10 +28,12 @@ ui <- navbarPage(
                          sliderInput("binwidth",
                                      "Width of bins:",
                                      min = 1,
-                                     max = 50,
+                                     max = 20,
                                      value = 5)
                      ),
-                     mainPanel(plotOutput("distPlot")))
+                     mainPanel(plotOutput("distPlot1"), 
+                               plotOutput("distPlot2"),
+                               plotOutput("distPlot3")))
              )),
     tabPanel("Discussion",
              titlePanel("Discussion Title"),
@@ -72,20 +78,51 @@ ui <- navbarPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        anes %>%
-            filter(china_mil %in% c(1, 2, 3)) %>%
-            ggplot(aes(x = china_mil)) +
-            geom_histogram(bins = input$binwidth, fill = "firebrick3") +
-            scale_x_discrete(limits = c("1", "2", "3"),
-                             labels = c("Major threat", "Minor threat", "not a threat")) +
-            labs(title = "Americans' Perspectives on the Chinese Military",
-                 subtitle = "Policy and attitudes toward China, ANES Survey 2012",
-                 x = "Chinese Military Threat",
-                 y = "Count") +
+output$distPlot1 <- renderPlot({
+anes %>%
+    filter(china_mil %in% c(1, 2, 3)) %>%
+    ggplot(aes(x = china_mil)) +
+    geom_histogram(bins = input$binwidth, fill = "firebrick3", 
+                   color = "white") +
+    scale_x_discrete(limits = c("1", "2", "3"),
+                labels = c("Major threat", "Minor threat", "not a threat")) +
+    labs(title = "Americans' Perspectives on the Chinese Military",
+            subtitle = "Policy and attitudes toward China, ANES Survey 2012",
+            x = "Chinese Military Threat",
+            y = "Count") +
             theme_bw()
     })
+
+output$distPlot2 <- renderPlot({
+da36806.0001 %>%
+    ggplot(aes(x = Q45_6)) +
+    geom_histogram(fill = "indianred", binwidth = 1) +
+    scale_x_discrete(limits = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
+    labs(title = "Americans' Feeling Thermometer Towards China ",
+            subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
+                100 = Very Warm; Chicago Council Survey 2016",
+            x = "American Feelings",
+            y = "Count") +
+         theme_bw()
+    })
+
+output$distPlot3 <- renderPlot({
+da36806.0001 %>%
+    ggplot(aes(x = Q45_6, fill = Q1025)) +
+    geom_boxplot() +
+    facet_wrap(~ Q1025) +
+    scale_fill_manual(values = c("salmon", "dodgerblue", "gold", "black")) +
+    scale_fill_discrete(name = "Political Identification",
+                        labels = c("Republican", "Democrat",
+                            "Independent", "Not asked Party Identification")) +
+    labs(title = "Americans' Feeling Thermometer Towards China ",
+        subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
+       100 = Very Warm; Chicago Council Survey 2016",
+             x = "American Feelings",
+             y = "Count") +
+        theme_bw()
+    })
+
 }
 
 # Run the application 

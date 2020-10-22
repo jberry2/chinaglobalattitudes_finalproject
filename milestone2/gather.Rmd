@@ -35,3 +35,40 @@ anes %>%
   
 ```
 
+```{r}
+ccouncil <- 
+  load("Chicago_Council/ICPSR_36806/DS0001/36806-0001-Data.rda")
+
+therm2016 <-
+  da36806.0001 %>%
+  select(Q45_6)
+
+saveRDS(therm, "china_therm_2016.RDS")
+
+da36806.0001 %>%
+  ggplot(aes(x = Q45_6)) +
+  geom_histogram(fill = "red", binwidth = 1) +
+  scale_x_discrete(limits = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
+  labs(title = "Americans' Feeling Thermometer Towards China ",
+       subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
+       100 = Very Warm; Chicago Council Survey 2016",
+       x = "American Feelings",
+       y = "Count") +
+  theme_bw()
+
+da36806.0001 %>%
+  ggplot(aes(x = Q45_6, fill = Q1025)) +
+  geom_boxplot() +
+  facet_wrap(~ Q1025) +
+  scale_fill_manual(values = c("salmon", "dodgerblue", "gold", "black")) +
+  scale_fill_discrete(name = "Political Identification",
+                    labels = c("Republican", "Democrat",
+                            "Independent", "Not asked Party Identification")) +
+  labs(title = "Americans' Feeling Thermometer Towards China ",
+       subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
+       100 = Very Warm; Chicago Council Survey 2016",
+       x = "American Feelings",
+       y = "Count") +
+  theme_bw()
+```
+
