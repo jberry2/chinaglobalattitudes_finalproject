@@ -12,6 +12,7 @@ library(tidyverse)
 library(foreign)
 library(shinythemes)
 library(prettyR)
+library(rstanarm)
 
 anes <- readRDS("chinese_military_threat.rds")
 ccouncil <- 
