@@ -11,6 +11,7 @@ library(shiny)
 library(tidyverse)
 library(foreign)
 library(shinythemes)
+library(prettyR)
 
 anes <- readRDS("chinese_military_threat.rds")
 ccouncil <- 
@@ -33,7 +34,8 @@ ui <- navbarPage(
                      ),
                      mainPanel(plotOutput("distPlot1"), 
                                plotOutput("distPlot2"),
-                               plotOutput("distPlot3")))
+                               plotOutput("distPlot3"),
+                               plotOutput("distPlot4")))
              )),
     tabPanel("Discussion",
              titlePanel("Discussion Title"),
@@ -122,6 +124,37 @@ da36806.0001 %>%
              y = "Count") +
         theme_bw()
     })
+
+output$distPlot4 <- renderPlot({
+    fit_obj <- stan_glm(Q45_6 ~ Q1025 -1,
+                        data = da36806.0001,
+                        refresh = 0)
+    
+fit_obj %>% 
+  as_tibble() %>% 
+  select(-sigma) %>% 
+  mutate(Democrat = `Q1025(2) Democratic`, Republican = `Q1025(1) Republican`,
+    Neither = `Q1025(3) Neither`) %>%
+  pivot_longer(cols = c(`Q1025(2) Democratic`,`Q1025(1) Republican`,
+                         `Q1025(3) Neither`),
+                 names_to = "parameter",
+                 values_to = "Attitude") %>% 
+  ggplot(aes(x = Attitude, color = parameter)) +
+  geom_histogram(aes(y = after_stat(count/sum(count))),
+                      alpha = 0.5, 
+                      bins = 100, 
+                      position = "identity") +
+  scale_color_manual(name = "Party Affiliation",
+                     labels = c("Republican", "Democrat", "Independent"),
+                      values = c("firebrick1", "dodgerblue", "ivory4")) +
+  labs(title = "Posterior Probability Distribution",
+      subtitle = "Average attitude toward China; Chicago Council Survey 2016",
+        x = "Attitude",
+        y = "Probability") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme_classic() +
+  geom_vline(xintercept = 50, linetype = 'dashed')
+})
 
 }
 
