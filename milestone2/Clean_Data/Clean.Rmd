@@ -1,0 +1,18 @@
+---
+title: "Clean"
+author: "Joshua Berry"
+date: "11/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+cc_2019 <- read_sav("2019 Chicago Council Survey - Datafile.sav")
+
+```
+
