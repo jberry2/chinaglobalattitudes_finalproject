@@ -7,12 +7,39 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(foreign)
+library(haven)
+library(tidyverse)
 ```
 
 ## R Markdown
 
+Does attitudes towards China vary with amount of trade? So do countries that
+trade more with China lead to more negative/positive attitudes towards China?
+
+
+input: trade with China as a percentage of GDP... aka interaction with China
+
+output: favoribility towards China by country
+
+Clean up datasets, merge by country, trade as percentage of GDP
+
+
 ```{r}
 cc_2019 <- read_sav("2019 Chicago Council Survey - Datafile.sav")
+
+pew_2019 <- 
+read_sav("Pew Research Center Global Attitudes Spring 2019 Dataset WEB.sav") %>%
+  as_factor()
+
+glimpse(pew_2019)
+
+pew_2019_c <- pew_2019 %>%
+  filter(country == "United States") %>%
+  ggplot(aes(x = FAV_CHINA)) +
+  geom_bar()
+  
 
 ```
 
