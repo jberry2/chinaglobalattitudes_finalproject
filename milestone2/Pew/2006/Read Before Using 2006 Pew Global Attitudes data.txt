@@ -1,0 +1,105 @@
+PEW RESEARCH CENTER - Global Attitudes Project
+Spring 2006 15 Nation Survey
+
+
+It is important to read this information before using the 2006 Pew Global Attitudes Survey dataset because there was some 
+oversampling done of European Muslim populations for which a special weight and filter need to be used to get accurate results.
+
+1.	This survey includes data for general populations and European Muslim populations. 
+ 
+2.	There are specific weights that must be used for the general populations and the European Muslim populations.  A filter must also be used 
+	when seeking to use the European Muslim oversamples.
+
+	a.	The weight that must be used when looking to analyze the attitudes and opinions of general populations* is:
+		
+		General population variable name:  Weight
+			
+
+	*General population data from Great Britain, France, Germany, and Spain include Muslim oversamples, but is weighted to be representative of the 
+	general population. 
+
+	b.	The filter and weight that must be used when seeking to analyze the attitudes and opinions of European Muslims are:
+
+		European Muslim Filter variable name:  Muslim
+		European Muslim Weight variable name:  Allmuslimswt
+
+
+3.	The full topline results for the general populations as well as the European Muslim populations are included in the topline provided with the 2006 dataset.
+
+4.	The topline also provides full question wording for all questions included in the survey.
+
+5.	The data in the SPSS dataset for the 2006 Pew Global Attitudes Survey is NOT in the same order as the data in the topline for the 2006 survey.  
+	However, the question numbers correspond in both the topline and the SPSS dataset.  
+
+
+Countries Surveyed:
+
+United States
+May 2-14, 2006
+N=1001
+
+Great Britain
+April 4-26, 2006
+N=902 (includes N=412 Muslim oversample)
+
+France
+April 5-19, 2006 
+N=905 (includes N=400 Muslim oversample)
+
+Germany
+April 5-27, 2006 
+N=902 (includes N=413 Muslim oversample)
+
+Spain
+April 7- May 4, 2006
+N=979 (includes N=402 Muslim oversample)
+
+Russia
+April 6-16, 2006
+N=1000
+
+Egypt
+April 5-27, 2006
+N=1000
+
+Turkey
+April 1-25, 2006
+N=1013
+
+Indonesia
+April 8-30, 2006
+N=1022
+
+India**
+April 15- May 3, 2006
+N=2029
+
+Pakistan**
+April 7-28, 2006
+N=1277
+
+Jordan
+April 5-27, 2006
+N=1000
+
+Nigeria***
+April 20-29, 2006
+N=1000
+
+China**
+April 7-18, 2006
+N=2180
+
+Japan
+March 31- April 21, 2006
+N=500
+
+**Note:
+Samples in China, India, and Pakistan were disproportionately or exclusively urban.  See Methodological Appendix of any of the 2006 reports for details. 
+
+***NOTE:
+The Nigerian sample includes 514 Christians and 468 Muslims.  The general population sample is weighted to reflect the demographic characteristics 
+of the population.  Views of Christian and Muslim Nigerians as well as Nigerians overall are reported in the 2006 Topline and can be found by using 
+the ReligionNig variable when analyzing the data.
+Variable Name:  ReligionNIG
+Variable Label:  Religion 

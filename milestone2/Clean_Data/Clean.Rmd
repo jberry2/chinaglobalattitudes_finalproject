@@ -15,6 +15,10 @@ library(tidyverse)
 
 ## R Markdown
 
+use huxtable to make tables piping in from stan_glm
+https://cran.r-project.org/web/packages/huxtable/vignettes/huxtable.html
+https://hughjonesd.github.io/huxtable/
+
 Does attitudes towards China vary with amount of trade? So do countries that
 trade more with China lead to more negative/positive attitudes towards China?
 
@@ -27,11 +31,123 @@ Clean up datasets, merge by country, trade as percentage of GDP
 
 
 ```{r}
-cc_2019 <- read_sav("2019 Chicago Council Survey - Datafile.sav")
 
 pew_2019 <- 
 read_sav("Pew Research Center Global Attitudes Spring 2019 Dataset WEB.sav") %>%
-  as_factor()
+  as_factor() %>%
+  filter(country %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                      "Turkey", "United Kingdom", "United States")) %>%
+  select(country, COUNTRY_SATIS, ECON_SIT, CHILDREN_BETTEROFF2, 
+         SATISFIED_DEMOCRACY, FAV_US, FAV_CHINA, ECON_POWER, CHINA_INFLU_ECON2,
+         USE_INTERNET, SOCIAL_NET, SEX, AGE, POLITICAL_SCALE2, D_DENSITY) %>%
+  rename(COUNTRY = country, country_satis = COUNTRY_SATIS, econ_sit = ECON_SIT,
+         children_betteroff2 = CHILDREN_BETTEROFF2, 
+         satisfied_democracy = SATISFIED_DEMOCRACY, fav_US = FAV_US, 
+         fav_China = FAV_CHINA, econ_power = ECON_POWER,
+         use_internet = USE_INTERNET, social_net = SOCIAL_NET, 
+         sex = SEX, age = AGE, political_scale2 = POLITICAL_SCALE2, 
+         d_density = D_DENSITY)
+
+pew_2018 <- 
+read_sav("Pew Research Global Attitudes Spring 2018 Dataset WEB FINAL.sav") %>%
+  as_factor() %>%
+  filter(COUNTRY %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                       "United Kingdom", "United States")) %>%
+  select(COUNTRY, country_satis, econ_sit, children_betteroff2, 
+         satisfied_democracy, fav_US, fav_China, econ_power,
+         use_internet, social_net, sex, age, d_density)
+
+pew_2017 <- 
+read_sav("Pew Research Global Attitudes Spring 2017 Dataset WEB FINAL.sav") %>%
+  as_factor() %>%
+  filter(Country %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                       "Turkey", "United Kingdom", "United States")) %>%
+  select(Country, country_satis, econ_sit, children_betteroff2, 
+         satisfied_democracy, fav_US, fav_China, econ_power,
+         use_internet, social_net, sex, age, political_scale2, d_density) %>% rename(COUNTRY = country)
+
+pew_2016 <- 
+read_sav("Pew Research Center Spring 2016 Global Attitudes.sav") %>%
+  as_factor() %>%
+  filter(country %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                       "Turkey", "United Kingdom", "United States")) %>%
+  select(country, q3, Q10A, Q10B, Q23,
+         q79, q82, q107, q108) %>%
+   rename(COUNTRY = country, country_satis = q3,
+         fav_US = Q10A, fav_China = Q10B, econ_power = Q23,
+         use_internet = q79, social_net = q82, sex = q107,
+         age = q108)
+
+pew_2015 <- 
+read_sav("Pew Research Global Attitudes Spring 2015 FINAL.sav") %>%
+  as_factor() %>%
+  filter(COUNTRY %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                       "Turkey", "United Kingdom", "United States")) %>%
+  select(COUNTRY, Q2, Q3, Q12A, Q12B, Q17,
+         Q70, Q74, Q145, Q146) %>%
+   rename(country_satis = Q2, econ_sit = Q3,
+         fav_US = Q12A, fav_China = Q12B, econ_power = Q17,
+         use_internet = Q70, social_net = Q74, sex = Q145,
+         age = Q146)
+
+pew_2014 <- 
+read_sav("Pew Research Global Attitudes Spring 2014.sav") %>%
+  as_factor() %>%
+  filter(COUNTRY %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                       "Turkey", "United Kingdom", "United States")) %>%
+  select(COUNTRY, Q5, Q9, Q11, Q15A, Q15B, Q33,
+         Q67, Q72, Q132, Q133) %>%
+  rename(country_satis = Q5, econ_sit = Q9, children_betteroff2 = Q11,
+         fav_US = Q15A, fav_China = Q15B, econ_power = Q33,
+         use_internet = Q67, social_net = Q72, sex = Q132,
+         age = Q133)
+
+pew_2013 <- 
+read_sav("Pew Research Global Attitudes Project Spring 2013.sav") %>%
+  as_factor() %>%
+  filter(COUNTRY %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                       "Turkey", "United Kingdom", "United States")) %>%
+  select(COUNTRY, Q1, Q4, Q8, Q9A, Q9C, Q29,
+         Q66, Q73, Q164, Q165) %>%
+  rename(country_satis = Q1, econ_sit = Q4, children_betteroff2 = Q8,
+         fav_US = Q9A, fav_China = Q9C, econ_power = Q29,
+         use_internet = Q66, social_net = Q73, sex = Q164,
+         age = Q165)
+
+pew_2012 <- 
+read_sav("Pew Research Global Attitudes Project Spring 2012.sav") %>%
+  as_factor() %>%
+  filter(COUNTRY %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                       "Turkey", "United Kingdom", "United States")) %>%
+  select(COUNTRY, Q2, Q4, Q8A, Q8C, Q14, Q29,
+         Q77, Q79, Q141, Q142) %>%
+  rename(country_satis = Q2, econ_sit = Q14, children_betteroff2 = Q4,
+         fav_US = Q8A, fav_China = Q8C, econ_power = Q29,
+         use_internet = Q77, social_net = Q79, sex = Q141,
+         age = Q142)
+
+```
+
+
+```{r}
+
+cc_2019 <- read_sav("2019 Chicago Council Survey - Datafile.sav")
 
 glimpse(pew_2019)
 
@@ -39,7 +155,5 @@ pew_2019_c <- pew_2019 %>%
   filter(country == "United States") %>%
   ggplot(aes(x = FAV_CHINA)) +
   geom_bar()
-  
-
 ```
 
