@@ -11,6 +11,13 @@ library(readr)
 library(foreign)
 library(haven)
 library(tidyverse)
+library(readxl)
+library(memisc)
+library(rstanarm)
+library(ggridges)
+library(gtsummary)
+library(broom.mixed)
+library(gt)
 ```
 
 ## R Markdown
@@ -43,12 +50,13 @@ read_sav("Pew Research Center Global Attitudes Spring 2019 Dataset WEB.sav") %>%
          SATISFIED_DEMOCRACY, FAV_US, FAV_CHINA, ECON_POWER, CHINA_INFLU_ECON2,
          USE_INTERNET, SOCIAL_NET, SEX, AGE, POLITICAL_SCALE2, D_DENSITY) %>%
   rename(COUNTRY = country, country_satis = COUNTRY_SATIS, econ_sit = ECON_SIT,
-         children_betteroff2 = CHILDREN_BETTEROFF2, 
+         children_betteroff = CHILDREN_BETTEROFF2, 
          satisfied_democracy = SATISFIED_DEMOCRACY, fav_US = FAV_US, 
          fav_China = FAV_CHINA, econ_power = ECON_POWER,
          use_internet = USE_INTERNET, social_net = SOCIAL_NET, 
          sex = SEX, age = AGE, political_scale2 = POLITICAL_SCALE2, 
-         d_density = D_DENSITY)
+         d_density = D_DENSITY) %>%
+  mutate(year = 2019)
 
 pew_2018 <- 
 read_sav("Pew Research Global Attitudes Spring 2018 Dataset WEB FINAL.sav") %>%
@@ -59,7 +67,9 @@ read_sav("Pew Research Global Attitudes Spring 2018 Dataset WEB FINAL.sav") %>%
                        "United Kingdom", "United States")) %>%
   select(COUNTRY, country_satis, econ_sit, children_betteroff2, 
          satisfied_democracy, fav_US, fav_China, econ_power,
-         use_internet, social_net, sex, age, d_density)
+         use_internet, social_net, sex, age, d_density)  %>%
+  rename(children_better0ff = children_betteroff2) %>%
+  mutate(year = 2018)
 
 pew_2017 <- 
 read_sav("Pew Research Global Attitudes Spring 2017 Dataset WEB FINAL.sav") %>%
@@ -70,7 +80,9 @@ read_sav("Pew Research Global Attitudes Spring 2017 Dataset WEB FINAL.sav") %>%
                        "Turkey", "United Kingdom", "United States")) %>%
   select(Country, country_satis, econ_sit, children_betteroff2, 
          satisfied_democracy, fav_US, fav_China, econ_power,
-         use_internet, social_net, sex, age, political_scale2, d_density) %>% rename(COUNTRY = country)
+         use_internet, social_net, sex, age, political_scale2, d_density) %>%
+  rename(COUNTRY = Country, children_better0ff = children_betteroff2)  %>%
+  mutate(year = 2017)
 
 pew_2016 <- 
 read_sav("Pew Research Center Spring 2016 Global Attitudes.sav") %>%
@@ -84,7 +96,8 @@ read_sav("Pew Research Center Spring 2016 Global Attitudes.sav") %>%
    rename(COUNTRY = country, country_satis = q3,
          fav_US = Q10A, fav_China = Q10B, econ_power = Q23,
          use_internet = q79, social_net = q82, sex = q107,
-         age = q108)
+         age = q108)  %>%
+  mutate(year = 2016)
 
 pew_2015 <- 
 read_sav("Pew Research Global Attitudes Spring 2015 FINAL.sav") %>%
@@ -98,7 +111,8 @@ read_sav("Pew Research Global Attitudes Spring 2015 FINAL.sav") %>%
    rename(country_satis = Q2, econ_sit = Q3,
          fav_US = Q12A, fav_China = Q12B, econ_power = Q17,
          use_internet = Q70, social_net = Q74, sex = Q145,
-         age = Q146)
+         age = Q146)  %>%
+  mutate(year = 2015)
 
 pew_2014 <- 
 read_sav("Pew Research Global Attitudes Spring 2014.sav") %>%
@@ -109,10 +123,11 @@ read_sav("Pew Research Global Attitudes Spring 2014.sav") %>%
                        "Turkey", "United Kingdom", "United States")) %>%
   select(COUNTRY, Q5, Q9, Q11, Q15A, Q15B, Q33,
          Q67, Q72, Q132, Q133) %>%
-  rename(country_satis = Q5, econ_sit = Q9, children_betteroff2 = Q11,
+  rename(country_satis = Q5, econ_sit = Q9, children_betteroff = Q11,
          fav_US = Q15A, fav_China = Q15B, econ_power = Q33,
          use_internet = Q67, social_net = Q72, sex = Q132,
-         age = Q133)
+         age = Q133)  %>%
+  mutate(year = 2014)
 
 pew_2013 <- 
 read_sav("Pew Research Global Attitudes Project Spring 2013.sav") %>%
@@ -123,10 +138,11 @@ read_sav("Pew Research Global Attitudes Project Spring 2013.sav") %>%
                        "Turkey", "United Kingdom", "United States")) %>%
   select(COUNTRY, Q1, Q4, Q8, Q9A, Q9C, Q29,
          Q66, Q73, Q164, Q165) %>%
-  rename(country_satis = Q1, econ_sit = Q4, children_betteroff2 = Q8,
+  rename(country_satis = Q1, econ_sit = Q4, children_betteroff = Q8,
          fav_US = Q9A, fav_China = Q9C, econ_power = Q29,
          use_internet = Q66, social_net = Q73, sex = Q164,
-         age = Q165)
+         age = Q165)  %>%
+  mutate(year = 2013)
 
 pew_2012 <- 
 read_sav("Pew Research Global Attitudes Project Spring 2012.sav") %>%
@@ -137,12 +153,180 @@ read_sav("Pew Research Global Attitudes Project Spring 2012.sav") %>%
                        "Turkey", "United Kingdom", "United States")) %>%
   select(COUNTRY, Q2, Q4, Q8A, Q8C, Q14, Q29,
          Q77, Q79, Q141, Q142) %>%
-  rename(country_satis = Q2, econ_sit = Q14, children_betteroff2 = Q4,
+  rename(country_satis = Q2, econ_sit = Q14, children_betteroff = Q4,
          fav_US = Q8A, fav_China = Q8C, econ_power = Q29,
          use_internet = Q77, social_net = Q79, sex = Q141,
-         age = Q142)
+         age = Q142)  %>%
+  mutate(year = 2012)
+
+pew_2011 <- 
+read_sav("Pew Global Attitudes Spring 2011 Dataset WEB.sav") %>%
+  as_factor() %>%
+  filter(COUNTRY %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                       "Turkey", "United Kingdom", "United States")) %>%
+ select(COUNTRY, Q2, Q4, Q3A, Q3C, Q26,
+         Q66, Q69, Q111, Q112) %>%
+  rename(country_satis = Q2, econ_sit = Q4,
+         fav_US = Q3A, fav_China = Q3C, econ_power = Q26,
+         use_internet = Q66, social_net = Q69, sex = Q111,
+         age = Q112)  %>%
+  mutate(year = 2011)
+
+pew_2010 <- 
+read_sav("Pew Global Attitudes Spring 2010 Dataset For Release.sav") %>%
+  as_factor() %>%
+  filter(COUNTRY %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                       "Turkey", "United Kingdom", "United States")) %>%
+  select(COUNTRY, Q5, Q12, Q7A, Q7C, Q25,
+         Q63, Q66, Q120, Q121) %>%
+  rename(country_satis = Q5, econ_sit = Q12,
+         fav_US = Q7A, fav_China = Q7C, econ_power = Q25,
+         use_internet = Q63, social_net = Q66, sex = Q120,
+         age = Q121)  %>%
+  mutate(year = 2010)
+
+pew_2009 <- 
+  read.spss('Pew Gap 2009 Data.sav', to.data.frame=TRUE) %>%
+  as_factor() %>%
+  filter(COUNTRY %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "South Korea",
+                       "Turkey", "United Kingdom", "United States")) %>%
+  select(COUNTRY, Q4, Q5, Q8, Q11A, Q11C, Q15,
+         Q80, Q81) %>%
+  rename(country_satis = Q4, econ_sit = Q5, children_betteroff = Q8,
+         fav_US = Q11A, fav_China = Q11C, econ_power = Q15,
+         sex = Q80, age = Q81)  %>%
+  mutate(year = 2009)
+```
+
+
+```{r}
+
+g20_gdp <- 
+  read_csv("GDP_G20.csv") %>%
+   filter(LOCATION %in% c("ARG", "AUS", "BRA", "CAN", "FRA",
+                      "DEU", "IND", "IDN", "ITA", "JPN",
+                      "MEX", "RUS", "ZAF", "KOR",
+                       "TUR", "GBR", "USA")) %>%
+  select(LOCATION, TIME, Value) %>%
+  rename(COUNTRY = LOCATION, year = TIME, gdp_tot = Value) %>%
+  mutate(COUNTRY = recode(COUNTRY,
+                          "AUS" = "Australia",
+                          "ARG" = "Argentina",
+                          "BRA" = "Brazil",
+                          "CAN" = "Canada",
+                          "FRA" = "France",
+                          "DEU" = "Germany",
+                          "IND" = "India",
+                          "IDN" = "Indonesia",
+                          "ITA" = "Italy",
+                          "JPN" = "Japan",
+                          "MEX" = "Mexico",
+                          "RUS" = "Russia",
+                          "ZAF" = "South Africa",
+                          "KOR" = "South Korea",
+                          "TUR" = "Turkey",
+                          "GBR" = "United Kingdom",
+                          "USA" = "United States"))
+
+china_imf_imports <-
+  read_excel("Imports_China.xlsx", skip = 5) %>%
+  pivot_longer(cols = - c(`...1`),
+               names_to = "year") %>%
+  rename(COUNTRY = `...1`, china_imports = value) %>%
+   filter(COUNTRY %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russian Federation", "South Africa", 
+                      "Korea, Rep. of", "Turkey", "United Kingdom", 
+                      "United States")) %>%
+  mutate(COUNTRY = recode(COUNTRY,
+                          "Russian Federation" = "Russia",
+                          "Korea, Rep. of" = "South Korea")) %>%
+  mutate(year = as.numeric(year))  %>%
+  mutate(china_imports = as.double(china_imports))
+
+china_imf_trade <- 
+  read_excel("Exports_China.xlsx", skip = 5) %>%
+  pivot_longer(cols = - c(`...1`),
+               names_to = "year") %>%
+  rename(COUNTRY = `...1`, china_exports = value) %>%
+   filter(COUNTRY %in% c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russian Federation", "South Africa", 
+                      "Korea, Rep. of", "Turkey", "United Kingdom", 
+                      "United States")) %>%
+  mutate(COUNTRY = recode(COUNTRY,
+                          "Russian Federation" = "Russia",
+                          "Korea, Rep. of" = "South Korea")) %>%
+  mutate(year = as.numeric(year),
+         china_exports = as.double(china_exports)) %>%
+  filter(year >= 2009) %>%
+  left_join(g20_gdp, by = c("year", "COUNTRY")) %>%
+  left_join(china_imf_imports, by = c("year", "COUNTRY")) %>%
+  mutate(total_trade = china_exports + china_imports) %>%
+  mutate(china_export_prop = china_exports/gdp_tot) %>%
+  mutate(china_import_prop = china_imports/gdp_tot) %>%
+  mutate(trade_flow_prop = total_trade/gdp_tot)
+
+pew <- 
+  bind_rows(pew_2019, pew_2018, pew_2017, pew_2016, pew_2015, pew_2014,
+            pew_2013, pew_2012, pew_2011, pew_2010, pew_2009)  %>%
+  left_join(china_imf_trade, by = c("year", "COUNTRY")) %>%
+  group_by(COUNTRY) %>%
+  mutate(fav_china_scale = case_when(fav_China == "Very unfavorable" ~ 1,
+                                     fav_China == "Somewhat unfavorable" ~ 2,
+                                     fav_China == "Somewhat favorable" ~ 3,
+                                     fav_China == "Very favorable" ~ 4,
+                                     TRUE ~ NA_real_))
+```
+
+
+```{r}
+set.seed(10)
+basic_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ trade_flow_prop,
+         refresh = 0)
+
+print(basic_model, digits = 4)
+
+tbl_regression(basic_model, intercept = TRUE) %>%
+  as_gt() %>%
+  tab_header(title = "Regression of Global Attitudes Torwards China",
+             subtitle = "The Effect of Total Trade Flow on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+  tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+
+basic_model %>% 
+  as_tibble() %>% 
+  rename(mu = `(Intercept)`) %>%
+  ggplot(aes(x = mu)) +
+    geom_histogram(aes(y = after_stat(count/sum(count))),
+                   fill = "lightblue4", 
+                   color = "gray97",
+                   bins = 100) +
+    labs(title = "Posterior Probability Distribution of Global Attitudes
+         Towards China",
+         subtitle = "The Effect of Total Trade Flow on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)",
+         x = "Attitudes Towards China",
+         y = "Probability") +
+    theme_classic()
 
 ```
+
+fav_china_scale ~ gdp_share
+
+
+
+
 
 
 ```{r}
