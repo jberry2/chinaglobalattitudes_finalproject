@@ -18,11 +18,13 @@ anes <- readRDS("chinese_military_threat.rds")
 ccouncil <- 
     load("Chicago_Council/ICPSR_36806/DS0001/36806-0001-Data.rda")
 
+pew <- readRDS("pew.RDS")
+
 # Define UI for application that draws a histogram
 ui <- navbarPage(
     "Final Project Title",
-    theme = shinytheme("slate"),
-    tabPanel("Model",
+    theme = shinytheme("simplex"),
+    tabPanel("Sample graphs (to be edited later)",
              fluidPage(
                  titlePanel("American Perspectives on China"),
                  sidebarLayout(
@@ -38,11 +40,30 @@ ui <- navbarPage(
                                plotOutput("distPlot3"),
                                plotOutput("distPlot4")))
              )),
-    tabPanel("Discussion",
-             titlePanel("Discussion Title"),
-             p("To be modified later...
-             Tour of the modeling choices you made and 
-              an explanation of why you made them")),
+    tabPanel("The Puzzle",
+             titlePanel("The Puzzle"),
+             p("	The People’s Republic of China was established on October 1, 
+               1949. Since then, the Chinese nation has seen a remarkable rise 
+               in prosperity, growing from a small agricultural country, torn 
+               increasingly apart by years of war, to a country today that 
+               boasts the world’s second largest economy and is home to over 
+               1.4 billion people. Yet, since opening itself to the global 
+               economy under the leadership of Deng Xiaoping during the 
+               “reform and openness” (gǎigé kāifàng) period of the 1980s, the
+               Chinese state has put most of its emphasis on developing 
+               traditional elements of hard power, including investments in the
+               Chinese economy and in the People’s Liberation Army. Under the
+               leadership of Xi Jinping, however, the Chinese Communist Party 
+               (CCP) has begun to shift its emphasis towards the development of 
+               “soft power” as a technique to increase Chinese standing on the 
+               international stage. ")),
+    tabPanel("Model",
+             fluidPage(
+               titlePanel("Model "),
+               mainPanel(
+                 plotOutput("basic_plot")
+                 
+               ))),
     tabPanel("About", 
              titlePanel("About"),
              h3("Project Background and Motivations"),
@@ -156,6 +177,47 @@ fit_obj %>%
   theme_classic() +
   geom_vline(xintercept = 50, linetype = 'dashed')
 })
+
+output$basic_plot <- renderPlot({
+  basic_model <- stan_glm(data = pew,
+                        formula = fav_china_scale ~ trade_flow_prop,
+                        refresh = 0)
+ 
+  basic_model %>% 
+  as_tibble() %>% 
+    rename(mu = `(Intercept)`) %>%
+    ggplot(aes(x = mu)) +
+    geom_histogram(aes(y = after_stat(count/sum(count))),
+                   fill = "lightblue4", 
+                   color = "gray97",
+                   bins = 100) +
+    labs(title = "Posterior Probability Distribution of Global Attitudes
+        Towards China",
+        subtitle = "The Effect of Total Trade Flow on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)",
+         x = "Attitudes Towards China",
+         y = "Probability") +
+    theme_classic()
+ })
+
+# output$myTable <- renderTable({ 
+#  basic_model <- stan_glm(data = pew,
+ #                         formula = fav_china_scale ~ trade_flow_prop,
+ #                         refresh = 0)
+  
+#  print(basic_model, digits = 4)
+  
+ # tbl_regression(basic_model, intercept = TRUE) %>%
+ #   as_gt() %>%
+  #  tab_header(title = "Regression of Global Attitudes Torwards China",
+  #             subtitle = "The Effect of Total Trade Flow on Favorability 
+  #           Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+ #   tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+     #                IMF World Trade Flows (2009-2019),
+    #                 World Bank G20 GDPs (2019-2019)"))}
+# )
+
+
 
 }
 

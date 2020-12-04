@@ -202,6 +202,7 @@ pew_2009 <-
          fav_US = Q11A, fav_China = Q11C, econ_power = Q15,
          sex = Q80, age = Q81)  %>%
   mutate(year = 2009)
+
 ```
 
 
@@ -282,43 +283,17 @@ pew <-
                                      fav_China == "Somewhat unfavorable" ~ 2,
                                      fav_China == "Somewhat favorable" ~ 3,
                                      fav_China == "Very favorable" ~ 4,
+                                     TRUE ~ NA_real_)) %>%
+  mutate(country_satis_scale = case_when(country_satis == "Dissatisfied" ~ 1,
+                                     country_satis == "Satisfied" ~ 2,
                                      TRUE ~ NA_real_))
+
+saveRDS(pew, "pew.RDS")
 ```
 
 
 ```{r}
-set.seed(10)
-basic_model <- stan_glm(data = pew,
-         formula = fav_china_scale ~ trade_flow_prop,
-         refresh = 0)
 
-print(basic_model, digits = 4)
-
-tbl_regression(basic_model, intercept = TRUE) %>%
-  as_gt() %>%
-  tab_header(title = "Regression of Global Attitudes Torwards China",
-             subtitle = "The Effect of Total Trade Flow on Favorability 
-             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
-  tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
-                     IMF World Trade Flows (2009-2019),
-                     World Bank G20 GDPs (2019-2019)"))
-
-
-basic_model %>% 
-  as_tibble() %>% 
-  rename(mu = `(Intercept)`) %>%
-  ggplot(aes(x = mu)) +
-    geom_histogram(aes(y = after_stat(count/sum(count))),
-                   fill = "lightblue4", 
-                   color = "gray97",
-                   bins = 100) +
-    labs(title = "Posterior Probability Distribution of Global Attitudes
-         Towards China",
-         subtitle = "The Effect of Total Trade Flow on Favorability 
-             Towards China (1 = Very unfavorable, 4 = Very favorable)",
-         x = "Attitudes Towards China",
-         y = "Probability") +
-    theme_classic()
 
 ```
 
