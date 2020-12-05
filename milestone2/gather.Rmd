@@ -200,9 +200,9 @@ pew %>%
 
 pew %>%
   ggplot(aes(y = fav_china_scale, x = total_trade_billions)) +
-  geom_point() + 
+  geom_point(alpha = .7) + 
   scale_x_log10() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm", formula = y~x, color = "darkmagenta")
 
 pew %>%
   ggplot(aes(y = fav_china_scale, x = total_trade)) +

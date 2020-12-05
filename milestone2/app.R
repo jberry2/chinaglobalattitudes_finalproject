@@ -303,7 +303,13 @@ ui <- navbarPage(
                ),
     tabPanel("American Perspectives on China",
              fluidPage(
-               titlePanel("Model"),
+               titlePanel("American Perspectives Have Skewed Negative"),
+               mainPanel(
+                 plotOutput("basic_plot")
+               ))),
+    tabPanel("Interpretation and Conclusion",
+             fluidPage(
+               titlePanel("So What?"),
                mainPanel(
                  plotOutput("basic_plot")
                ))),
