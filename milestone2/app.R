@@ -16,6 +16,10 @@ library(rstanarm)
 library(leaflet)
 library(gganimate)
 library(markdown)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(rgeos)
 
 anes <- readRDS("chinese_military_threat.rds")
 ccouncil <- 
@@ -301,24 +305,104 @@ ui <- navbarPage(
                
                  
                ),
+    
     tabPanel("American Perspectives on China",
-             fluidPage(
-               titlePanel("American Perspectives Have Skewed Negative"),
-               mainPanel(
-                 plotOutput("basic_plot")
-               ))),
+             
+             fluidRow(
+               column(4, 
+                      h3("Understanding Sector-Wide Impact"),
+                      p("To help put into perspective the widespread,
+                                     national economic crisis that COVID-19 has caused 
+                                     for arts organizations, take a look at unemployment rates.
+                                     While unemployment rates for artists were lower than
+                                     the general population at the beginning of 2020, they skyrocketed
+                                     during the pandemic and have yet to come anywhere close to pre-pandemic
+                                     levels. This suggests the need for special relief legislation target specifically
+                                     at helping artists and arts organizations.")),
+               
+               # I saved the animation as an html, so used 
+               # htmlOutput to get it
+               
+               column(8, 
+                      htmlOutput("animation"))
+             ),
+             
+             # This row shows how cases didn't seem to have much of an
+             # impact on financial wellbeing of arts organizations
+             
+             fluidRow(
+               column(8, 
+                      
+                      # Within this tab, there's a baby tab that
+                      # lets you choose which of the three graphs 
+                      # you want to see
+                      
+                      tabsetPanel(
+                        tabPanel("Severity Financial Impact", 
+                                 plotOutput("states_1")), 
+                        tabPanel("Likelihood Staff Reduction", 
+                                 plotOutput("states_2")), 
+                        tabPanel("Chances of Survival", 
+                                 plotOutput("states_3")))
+               ),
+               
+               # This text explains that
+               
+               column(4, 
+                      h3("How did statewide case numbers affect arts organizations?"),
+                      p("Did arts organizations around the nation feel the effects
+                                   of the pandemic similarly? The answer seems to be yes (at least
+                                   for the March-May timeframe, which is what's shown in the plot).
+                                   Despite some states such as New York, New Jersey, and Massachussets
+                                   having much higher rates of COVID-19, arts organizations with
+                                   budgets between $100,000 and $249,999 (the same sub-group predicted
+                                   in the model) self-rated the economic damage done to their organizations
+                                   at similar levels around the nation. This
+                                   lack of an obvious relationship between statewide COVID-19 case rates and 
+                                   economic impact on arts organizations, as shown by the nearly flat trendline,
+                                   suggests that programs at the national level could be an effective
+                                   way to address this widespread economic hardship.")))),
+    
     tabPanel("Interpretation and Conclusion",
              fluidPage(
                titlePanel("So What?"),
                mainPanel(
-                 plotOutput("basic_plot")
+                 plotOutput("basic_plot")),
+               
+               fluidRow(
+                 column(5, 
+                        h3("Beyond Numbers: Stories of the Pandemic's Impact"),
+                        p("At the end of the survey, participants were asked an optional
+                                       open response question: Is there anything else you would like to 
+                                       share about the impact of COVID-19 on your organization? People
+                                       responded to this prompt in a variety of ways. Some expressed 
+                                       fear about the unknown nature of the pandemic and its impact on 
+                                       the arts sector, or detailed losses in the forms of cancelled 
+                                       performances, slashed income, and social isolation. Others 
+                                       detailed the innovative ways their organization had adapted to
+                                       provide services for their community and expressed hope that 
+                                       the arts could serve as a unifying and comforting force for 
+                                       a fractured society. In later months, many respondents expressed
+                                       a sense of exhaustion at the difficult and often demoralizing work
+                                       of being an artist or arts administrator in this time. Many responses
+                                       touched on multiple of these themes."),
+                        br(),
+                        p("Working with large datasets can sometimes feel very distant from
+                                         the individual lives and stories that make up your data. I hope that
+                                         by exploring some of the most commonly used words in participants'
+                                         responses to these questions and reading through a few of the actual
+                                         responses(organized by theme), you can begin to get a sense of the 
+                                         profound impact of COVID-19 on the individuals who help produce art
+                                         in this country")),
+               
                ))),
+    
     tabPanel("About", 
-             titlePanel("About"),
-             h3("Project Background and Motivations"),
-             p("Link to Github repo: 
-               https://github.com/jberry2/milestones_final_project.git.
-               For this project I intend to study American attitudes
+             
+             h2("About this project"),
+             br(),
+             h4("Project Background and Motivations"),
+             p("For this project I intend to study American attitudes
                towards China over a longitudinal time period. I am 
                particuarly interested in how identity factors into American
                attitudes to China. For instance, is a white Republican from
@@ -342,11 +426,33 @@ ui <- navbarPage(
                there have been correlations in changes in American public
                opinion and increased funding in Chinese public diplomacy
                efforts. This final project for Government 50 will constitute
-               one component of my Senior Thesis, required for graduation"),
-             h3("About Me"),
+               one component of my Senior Thesis, required for graduation.
+               Check out my:"),
+             a("github repo here.", 
+               href = "https://github.com/jberry2/milestones_final_project"),
+             p("The data on public opinion  came from", 
+            a("The Pew Research Center's Global Attitudes and Trends polling series.", 
+                href = "https://www.pewresearch.org/global/"),
+            "The data on trade flows sectors was reported from the International 
+            Monetary Fund and can be accessed", 
+            a("on their website.", href = "https://data.imf.org/?sk=9d6028d4-f14a-464c-a2f2-59b2cd424b85"),
+            "The data on GDP for each country was reported from the Organization
+            for Ec0nomic Co-operation and Development and can be accessed", 
+            a("on their website here.", href = "https://data.oecd.org/gdp/gross-domestic-product-gdp.htm")),
+            p("For the code used to create this project, check out my", 
+             a("Github Repository.", 
+             href = "https://github.com/jberry2/milestones_final_project")),
+             br(),
+             h4("Acknowlegements"),
+             p("First and foremost, I would like to thank my TF Mitchell, whose patience, kindness, and penchant
+                            for R-related memes gave me the motivation I needed to complete this project."), 
+             h2("About Me"),
+             br(),
              p("My name is Joshua Berry and I study political science at
              Harvard College. 
-             You can reach me at jberry@college.harvard.edu.")))
+             You can reach me at jberry@college.harvard.edu."))
+)
+  
 
 
 server <- function(input, output) {
