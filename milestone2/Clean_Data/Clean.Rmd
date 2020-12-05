@@ -283,10 +283,22 @@ pew <-
                                      fav_China == "Somewhat unfavorable" ~ 2,
                                      fav_China == "Somewhat favorable" ~ 3,
                                      fav_China == "Very favorable" ~ 4,
-                                     TRUE ~ NA_real_)) %>%
+                                     TRUE ~ NA_real_)) 
+
+pew <- pew %>%
   mutate(country_satis_scale = case_when(country_satis == "Dissatisfied" ~ 1,
                                      country_satis == "Satisfied" ~ 2,
-                                     TRUE ~ NA_real_))
+                                     TRUE ~ NA_real_)) %>%
+  mutate(fav_china_logistic = case_when(fav_China == "Very unfavorable" ~ 0,
+                                     fav_China == "Somewhat unfavorable" ~ 0,
+                                     fav_China == "Somewhat favorable" ~ 1,
+                                     fav_China == "Very favorable" ~ 1,
+                                     TRUE ~ NA_real_)) %>%
+  mutate(total_trade_billions = total_trade/1000)  %>%
+  mutate(china_export_prop = 100 * china_export_prop) %>%
+  mutate(china_import_prop = 100 * china_import_prop) %>%
+  mutate(trade_flow_prop = 100 * trade_flow_prop)
+
 
 saveRDS(pew, "pew.RDS")
 ```

@@ -14,6 +14,10 @@ library(ggridges)
 library(gtsummary)
 library(broom.mixed)
 library(gt)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(rgeos)
 ```
 
 ## R Markdown
@@ -109,12 +113,59 @@ fit_obj %>%
 ```
 
 ```{r}
+pew <- readRDS("pew.RDS")   %>%
+  mutate(china_export_prop = china_export_prop/1000000) %>%
+  mutate(china_import_prop = china_import_prop/1000000) %>%
+  mutate(trade_flow_prop = trade_flow_prop/1000000) %>%
+  mutate(total_trade_billions = total_trade/1000)  %>%
+  mutate(gdp_billions = gdp_tot/1000) %>%
+  mutate(china_imports_billions = china_imports/1000) %>%
+  mutate(china_exports_billions = china_exports/1000) %>%
+  mutate(fav_china_logistic = case_when(fav_China == "Very unfavorable" ~ 0,
+                                     fav_China == "Somewhat unfavorable" ~ 0,
+                                     fav_China == "Somewhat favorable" ~ 1,
+                                     fav_China == "Very favorable" ~ 1,
+                                     TRUE ~ NA_real_)) 
+
+
+saveRDS(pew, "pew.RDS")
+
+pew <- readRDS("pew.RDS")
+
 set.seed(10)
 basic_model <- stan_glm(data = pew,
-         formula = fav_china_scale ~ trade_flow_prop,
+         formula = fav_china_scale ~ trade_flow_prop  + country_satis 
+         + econ_power,
          refresh = 0)
 
-print(basic_model, digits = 4)
+set.seed(10)
+billion_basic_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ total_trade_billions,
+         refresh = 0)
+
+print(billion_basic_model, digits = 5)
+
+million_basic_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ total_trade,
+         refresh = 0)
+
+print(million_basic_model, digits = 5)
+
+pew_basic_model <- saveRDS(basic_model, "basic_model.rds")
+
+print(basic_model, digits = 5)
+
+china_imports_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ china_import_prop,
+         refresh = 0)
+
+print(china_imports_model, digits = 4)
+
+china_exports_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ china_export_prop,
+         refresh = 0)
+
+print(china_exports_model, digits = 4)
 
 tbl_regression(basic_model, intercept = TRUE) %>%
   as_gt() %>%
@@ -141,5 +192,140 @@ basic_model %>%
          x = "Attitudes Towards China",
          y = "Probability") +
     theme_classic()
+
+pew %>%
+  ggplot(aes(y = fav_china_logistic, x = trade_flow_prop)) +
+  geom_point() +
+  geom_smooth(method = "glm", method.args = list(family = "binomial"))
+
+pew %>%
+  ggplot(aes(y = fav_china_scale, x = total_trade_billions)) +
+  geom_point() + 
+  scale_x_log10() +
+  geom_smooth(method = "lm")
+
+pew %>%
+  ggplot(aes(y = fav_china_scale, x = total_trade)) +
+  geom_boxplot() +
+  factor(~COUNTRY)
+```
+
+```{r}
+
+pew %>%
+  group_by(COUNTRY, year) %>%
+  drop_na(fav_china_logistic) %>%
+  summarize(country_fav_prop = sum(fav_china_logistic)/n(),
+            country_unfav_prop = sum(fav_china_logistic == 0)/n()) %>%
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = country_fav_prop, color = "steelblue")) +
+  geom_line(aes(y = country_unfav_prop, color = "darkred")) +
+  facet_wrap(~ COUNTRY) +
+    theme(axis.text = element_text(size = 5),
+          axis.text.x = element_text(angle = 45),
+        strip.text = element_text(size = 7),
+        panel.grid = element_blank(), 
+        panel.spacing.x = unit(3, "mm"),
+        axis.ticks = element_blank()) +
+    scale_x_continuous(breaks = c(2009:2019),
+                     labels = c("2009", "", "", "", "", "", "", "", "", "", "2019")) +
+        labs(title = "Increasingly negative evaluations of China across G20 economies",
+         subtitle = "% who have a(n) view of China",
+         x = "Year",
+         y = "Public Opinion") +
+    scale_color_discrete(name = "Favorable/Unfavorable", labels = c("Unfavorable", "Favorable")) +
+    theme_linedraw()
+  
+
+pew %>%
+  group_by(COUNTRY, year) %>%
+  drop_na(fav_china_logistic) %>%
+  summarize(country_fav_prop = sum(fav_china_logistic)/n(),
+            country_unfav_prop = sum(fav_china_logistic == 0)/n()) %>%
+  filter(COUNTRY == input$COUNTRY) %>%
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = country_fav_prop, color = "steelblue")) +
+  geom_line(aes(y = country_unfav_prop, color = "darkred")) +
+    theme(axis.text = element_text(size = 5),
+          axis.text.x = element_text(angle = 45),
+        strip.text = element_text(size = 7),
+        panel.grid = element_blank(), 
+        panel.spacing.x = unit(3, "mm"),
+        axis.ticks = element_blank()) +
+    scale_x_continuous(breaks = c(2009:2019),
+                     labels = c("2009", "", "", "", "", "", "", "", "", "", "2019")) +
+        labs(title = "Evaluations of China across ____, a G20 economy",
+         subtitle = "% who have a(n) view of China",
+         x = "Year",
+         y = "Public Opinion") +
+    scale_color_discrete(name = "Favorable/Unfavorable", labels = c("Unfavorable", "Favorable")) +
+    theme_linedraw()
+  
+
+```
+```{r, trade flow}
+
+pew %>%
+  ggplot(aes(x = year, y = gdp_billions)) +
+  geom_line(color = "blue") +
+ facet_wrap(~COUNTRY) +
+      labs(title = "GDP of Country by Year",
+         subtitle = "The Effect of Total Trade Flow on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)",
+         x = "Year",
+         y = "GDP in Billions of US Dollars") +
+    theme_classic()
+
+
+
+pew %>%
+ ggplot(aes(x = year, y = china_exports_billions)) +
+  geom_line(color = "red") +
+ facet_wrap(~COUNTRY) +
+      labs(title = "Chinese Exports by Year",
+         subtitle = "The amount of Exports that China sent to other G20 members
+         has varied over time",
+         x = "Year",
+         y = "Export Value in Billions of US Dollars") +
+    theme_classic()
+  
+pew %>%
+ ggplot(aes(x = year, y = china_imports_billions)) +
+  geom_line(color = "green") +
+ facet_wrap(~COUNTRY) +
+      labs(title = "Chinese Imports by Year",
+         subtitle = "The amount of Imports that China has recieved from other G20 members
+         has varied over time",
+         x = "Year",
+         y = "Import Value in Billions of US Dollars") +
+    theme_classic()
+
+
+
+```
+```{r}
+
+trade_flow_data <- data.frame(
+  name = c("Argentina", "Australia", "Brazil", "Canada", "France",
+                      "Germany", "India", "Indonesia", "Italy", "Japan",
+                      "Mexico", "Russia", "South Africa", "Korea",
+                       "Turkey", "United Kingdom", "United States"),
+  trade_flow_data = c(1.383301, 11.81229, 2.901576, 3.360795, 1.981375, 3.948714,
+             1.040185, 2.391821, 2.055134, 5.765495, 2.332136, 2.562977,
+             5.58519, 12.75449, 0.8871423, 2.645502, 2.527944)
+)
+
+world <- ne_countries(scale = "medium", returnclass = "sf") %>%
+  left_join(trade_flow_data, by = "name")
+  
+class(world)
+ggplot(data = world) +
+    geom_sf(aes(fill = trade_flow_data)) +
+    scale_fill_viridis_c(trans = "sqrt",
+                         name = "Trade w/ China as % of GDP") +
+   ggtitle("Trade Flow between China and G20 Countries 
+           (imports + exports with China / total GDP, proportion)", 
+           subtitle = "Among 17 of 20 G20 members") +
+  theme_classic()
 ```
 
