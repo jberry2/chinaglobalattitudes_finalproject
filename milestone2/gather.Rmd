@@ -134,9 +134,65 @@ pew <- readRDS("pew.RDS")
 
 set.seed(10)
 basic_model <- stan_glm(data = pew,
-         formula = fav_china_scale ~ trade_flow_prop  + country_satis 
-         + econ_power,
+         formula = fav_china_scale ~ trade_flow_prop,
          refresh = 0)
+
+tbl_regression(basic_model, intercept = TRUE) %>%
+  as_gt() %>%
+  tab_header(title = "Regression of Global Attitudes Torwards China",
+             subtitle = "The Effect of Total Trade Flow Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+  tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+basic_export_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ china_export_prop,
+         refresh = 0)
+
+saveRDS(basic_export_model, "basic_export_model.RDS")
+
+new_obs <- tibble(china_export_prop = input$user_percentage)
+
+posterior_predict(basic_export_model, newdata = new_obs) %>%
+  as_tibble() %>%
+  mutate(across(everything(), as.numeric)) %>%
+  ggplot(aes(x = `1`)) +
+    geom_histogram(aes(y = after_stat(count/sum(count))),
+                   bins = 150, color = "white", fill = "blue")  +
+    labs(title = "Posterior Probability Distribution",
+         subtitle = "For a __% change in Chinese imports as percentage of GDP",
+         x = "Negative Effect on Public Opinion",
+         y = "Probability") +
+    scale_y_continuous(labels = scales::percent_format()) +
+    theme_classic()
+
+tbl_regression(basic_export_model, intercept = TRUE) %>%
+  as_gt() %>%
+  tab_header(title = "Regression of Global Attitudes Torwards China",
+             subtitle = "The Effect of Chinese Export Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+  tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+basic_import_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ china_import_prop,
+         refresh = 0)
+
+saveRDS(basic_import_model, "basic_import_model.RDS")
+
+
+  
+
+tbl_regression(basic_import_model, intercept = TRUE) %>%
+  as_gt() %>%
+  tab_header(title = "Regression of Global Attitudes Torwards China",
+             subtitle = "The Effect of Chinese Export Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+  tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
 
 set.seed(10)
 billion_basic_model <- stan_glm(data = pew,
@@ -149,6 +205,8 @@ million_basic_model <- stan_glm(data = pew,
          formula = fav_china_scale ~ total_trade,
          refresh = 0)
 
+
+
 print(million_basic_model, digits = 5)
 
 pew_basic_model <- saveRDS(basic_model, "basic_model.rds")
@@ -158,6 +216,7 @@ print(basic_model, digits = 5)
 china_imports_model <- stan_glm(data = pew,
          formula = fav_china_scale ~ china_import_prop,
          refresh = 0)
+
 
 print(china_imports_model, digits = 4)
 
@@ -177,7 +236,7 @@ tbl_regression(basic_model, intercept = TRUE) %>%
                      World Bank G20 GDPs (2019-2019)"))
 
 
-basic_model %>% 
+china_exports_model %>% 
   as_tibble() %>% 
   rename(mu = `(Intercept)`) %>%
   ggplot(aes(x = mu)) +
@@ -185,8 +244,7 @@ basic_model %>%
                    fill = "lightblue4", 
                    color = "gray97",
                    bins = 100) +
-    labs(title = "Posterior Probability Distribution of Global Attitudes
-         Towards China",
+    labs(title = "Probability Distribution of Global Attitudes Towards China",
          subtitle = "The Effect of Total Trade Flow on Favorability 
              Towards China (1 = Very unfavorable, 4 = Very favorable)",
          x = "Attitudes Towards China",
@@ -208,6 +266,75 @@ pew %>%
   ggplot(aes(y = fav_china_scale, x = total_trade)) +
   geom_boxplot() +
   factor(~COUNTRY)
+```
+```{r}
+# Tables creation
+
+
+model_variables <- tibble(name = c("china_export_prop",
+                              "china_import_prop", "trade_flow_prop", 
+                              "econ_sit","country_satis", "satisfied_democracy",
+                              "children_betterOff", "internet", "social_net",
+                              "gender", "age"),
+                     
+                     # This row gives a description of the variables
+                     
+                     description = c("Total amount of Chinese originating imports of X Country (in USD)/Total GDP of
+                                     X Country", 
+                                     "Total amount of X Country originating exports towards China (in USD)/Total 
+                                     GDP of X Country", 
+                                    "Total amount of X Country and China Trade (in USD)/Total 
+                                     GDP of X Country", 
+                                    "Rated respondent opinion on their home country's economic situation",
+                                    "Rated respondent opinion on whether they are satisfied or dissatsified
+                                    with their country's current situation",
+                                    "Rated respondent opinion on their satisfaction with democratic processes in
+                                    their home country",
+                                    "Rated respondent opinion on whether their children will have better lives
+                                    in their home country than their parents",
+                                    "Indicator of whether or not respondent regularly uses the internet",
+                                    "Indicator of whether or not respondent regularly uses social media",
+                                    "Indicator of respondent's 's gender",
+                                    "Respondent's self-reported age"),
+      
+                     
+                     # Was the variable in the simple model?
+                     
+                     simple = c("Yes", "No", "No", "No", "No",
+                                "No", "No", "No", "No", "No", "No"),
+                    
+                      simple_demographics = c("Yes", "No", "No", "No", "No",
+                                "No", "No", "No", "No", "Yes", "Yes"),
+                     
+                     # Was the variable in the medium model?
+                     
+                     medium = c("Yes", "No", "No", "Yes", "No",
+                                "No", "No", "No", "No", "No", "No"),
+                     
+                     # Was the variable in the complex model?
+                     
+                     complex = c("Yes", "No", "No", "Yes", "Yes",
+                                "Yes", "Yes", "Yes", "Yes", "No", "No"),
+                     
+                     simple_Chinese_imports = c("No", "Yes", "No", "No", "No",
+                                "No", "No", "No", "No", "No", "No"),
+                     
+                     simple_total_trade = c("No", "No", "Yes", "No", "No",
+                                "No", "No", "No", "No", "No", "No")) %>%
+  
+  # Renaming columns to nicer things for display purposes
+  
+  rename("Variable name" = name, "Description" = description,
+         "In Simple Model?" = simple, 
+         "In Simple Demographics Model?" = simple_demographics,
+         "In Medium Model?" = medium, 
+         "In Complex Model?" = complex, 
+         "In Simple Exports to China Model?" = simple_Chinese_imports,
+         "In Simple Total Trade  Model?" = simple_total_trade)
+
+# Saving this table to use later
+
+saveRDS(model_variables, "model_variables.RDS")
 ```
 
 ```{r}
@@ -319,13 +446,17 @@ world <- ne_countries(scale = "medium", returnclass = "sf") %>%
   left_join(trade_flow_data, by = "name")
   
 class(world)
-ggplot(data = world) +
+
+
+map_trade <- ggplot(data = world) +
     geom_sf(aes(fill = trade_flow_data)) +
     scale_fill_viridis_c(trans = "sqrt",
                          name = "Trade w/ China as % of GDP") +
-   ggtitle("Trade Flow between China and G20 Countries 
+   ggtitle("Trade between China and _____ G20 Country as a % of ______ Country's GDP 
            (imports + exports with China / total GDP, proportion)", 
            subtitle = "Among 17 of 20 G20 members") +
   theme_classic()
+
+ggsave("map_trade.png", map_trade)
 ```
 
