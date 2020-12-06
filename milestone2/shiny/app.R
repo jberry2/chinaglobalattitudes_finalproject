@@ -12,13 +12,10 @@
 library(shiny)
 library(tidyverse)
 library(shinythemes)
-library(gtsummary)
 library(gt)
-library(rstanarm)
-library(broom)
+library(gtsummary)
 library(broom.mixed)
-library(memisc)
-library(timeDate)
+library(rstanarm)
 
 # loading RDS and objects
 
@@ -386,33 +383,32 @@ ui <- navbarPage(
                    )),
                    br(),
                    br(),
- )))),
                    
                    # I had to comment out my big live model so the projecty
  # could deploy online. I will still show it live tomorrow though.
                    
-#  fluidRow(
-  #      column(8,
-     #   plotOutput("basic_model_posterior")
-   #     ),
-   #     column(4, 
-    #    h3("Predicting Median G20 Public Opinion towards
-    #        China based on Chinese Imports-to-GDP Ratios
-    #        (Chinese Import Dependence)"),
-   #         p("Use the slider below to make predictions about how much
-   #           global attitudes will change towards China with increased
-   #           levels of Chinese goods exported to their home country.
-   #           0 = 0% import-to-GDP ratio; 100 = 100% import-to-GDP ratio"),
+  fluidRow(
+       column(8,
+       plotOutput("basic_model_posterior")
+       ),
+      column(4, 
+       h3("Predicting Median G20 Public Opinion towards
+            China based on Chinese Imports-to-GDP Ratios
+            (Chinese Import Dependence)"),
+           p("Use the slider below to make predictions about how much
+             global attitudes will change towards China with increased
+             levels of Chinese goods exported to their home country.
+            0 = 0% import-to-GDP ratio; 100 = 100% import-to-GDP ratio"),
                             
                             # This slider allows the user to choose the number
                             # of lost attendees. It starts at 0 and
                             # the user can choose from there in increments
                             # of 200
                             
-# sliderInput("user_percentage", "Percentage Dependence on Importing Chinese Goods
- #                                       as Ratio of GDP",
- #                                       min = 0, max = 100,
-  #                                      value = 0, step = 1))))))),
+sliderInput("user_percentage", "Percentage Dependence on Importing Chinese Goods
+                                       as Ratio of GDP",
+                                       min = 0, max = 100,
+                                       value = 0, step = 1))))))),
     tabPanel("About", 
              
              # an about page with info about myself
@@ -770,24 +766,24 @@ da36806.0001 %>%
         theme_bw()
     })
 
-# output$basic_model_posterior <- renderPlot({
- # new_obs <- tibble(china_export_prop = input$user_percentage)
+output$basic_model_posterior <- renderPlot({
+  new_obs <- tibble(china_export_prop = input$user_percentage)
   
- # posterior_predict(basic_export_model, newdata = new_obs) %>%
- #   as_tibble() %>%
-  #  mutate(across(everything(), as.numeric)) %>%
-  #  ggplot(aes(x = `1`)) +
-  #  geom_histogram(aes(y = after_stat(count/sum(count))),
-  #                 bins = 150, color = "white", fill = "blue")  +
-  #  labs(title = "Predictive Posterior Probability Distribution",
-  #       subtitle = "For a __% change in Chinese Imports by X Country as 
-  #       percentage of GDP",
-  #       x = "Predicted G20 Median Attitude on Favorability Towards China 
-  #       (1 = Very unfavorable, 4 = Very favorable)",
-    #     y = "Probability") +
-    # scale_y_continuous(labels = scales::percent_format()) +
-  #  theme_classic()
-# })
+  posterior_predict(basic_export_model, newdata = new_obs) %>%
+    as_tibble() %>%
+    mutate(across(everything(), as.numeric)) %>%
+    ggplot(aes(x = `1`)) +
+    geom_histogram(aes(y = after_stat(count/sum(count))),
+                   bins = 150, color = "white", fill = "blue")  +
+    labs(title = "Predictive Posterior Probability Distribution",
+        subtitle = "For a __% change in Chinese Imports by X Country as 
+         percentage of GDP",
+        x = "Predicted G20 Median Attitude on Favorability Towards China 
+        (1 = Very unfavorable, 4 = Very favorable)",
+         y = "Probability") +
+     scale_y_continuous(labels = scales::percent_format()) +
+   theme_classic()
+ })
 
 output$distPlot4 <- renderPlot({
   
