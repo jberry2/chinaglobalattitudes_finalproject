@@ -16,6 +16,8 @@ library(markdown)
 library(rstanarm)
 library(gtsummary)
 library(gt)
+library(broom)
+library(broom.mixed)
 
 
 anes <- readRDS("chinese_military_threat.rds")
@@ -31,6 +33,13 @@ basic_import_model <- readRDS("basic_import_model.RDS")
 basic_export_model <- readRDS("basic_export_model.RDS")
 
 model_variables <- readRDS("model_variables.RDS")
+
+medium_export_model <- readRDS("medium_export_model.RDS")
+
+complex_export_model <- readRDS("complex_export_model.RDS")
+
+simple_export_demographic_model <- 
+  readRDS("simple_export_demographic_model.RDS")
 
 # Define UI for application that draws a histogram
 ui <- navbarPage(
@@ -155,15 +164,47 @@ ui <- navbarPage(
                    Explore the map below to see where trade is coming from and going, as well as the 
                    level of interdependence each economy has with China."),
                  HTML('<center><img src="map_trade_crop.png" width="1400"></center>')
-                 
-                 
              )),
+    
+    tabPanel("American Perspectives on China",
+             
+             fluidRow(
+               column(4, 
+                      h3("To be written later"),
+                      p("tbd")),
+               
+               # I saved the animation as an html, so used 
+               # htmlOutput to get it
+               
+               column(8 
+               ),
+             ),
+             
+             # This row shows how cases didn't seem to have much of an
+             # impact on financial wellbeing of arts organizations
+             
+             fluidRow(
+               column(8, 
+                      
+                      # Within this tab, there's a baby tab that
+                      # lets you choose which of the three graphs 
+                      # you want to see
+                      
+                      tabsetPanel(
+                      ))
+             ),
+             
+             # This text explains that
+             
+             column(4, 
+                    h3("To be titled later"),
+                    p("to be written later"))),
     
     tabPanel("Modeling Global Attitudes",
              fluidPage(
                titlePanel("Building a Model to Predict the Effect of Trade on Global Attitudes Towards China"),
                
-               h2("The Question: Does China Shock Lead to Global Antipathy Towards China?"),
+               h4("The Question: Does China Shock Lead to Global Antipathy Towards China?"),
                p("It is undisputed that the entry of China into the G20 in 2001 has had an outsized
                effect on world affairs. Understanding the impact that China's economic rise has had 
                             on people's feelings towards China is an unressolved question though.The following
@@ -171,10 +212,12 @@ ui <- navbarPage(
                  between the years of 2009 to 2019"),
                br(),
                br(),
-               
                fluidRow(
                  column(5, 
+                        br(),
+                        br(),
                         h3("Focusing on Trade-to-GDP Ratios"),
+                        br(),
                         p("The trade-to-GDP ratio is an indicator of the relative importance of
                           international trade in the economy of a country. It is calculated by dividing the
                           aggregate value of imports amd exports over a period of time by the 
@@ -191,9 +234,6 @@ ui <- navbarPage(
                  column(7, 
                         plotOutput("basic_plot"),
                         br(), 
-                        
-                        # And here's the plot, created in the server
-                        
                         ),
                br(),
                br(),
@@ -205,7 +245,17 @@ ui <- navbarPage(
                  column(9,
                         tableOutput("variable_table")),
                  column(3, 
-                        h3("Model Building Process"), 
+                        br(),
+                        br(),
+                        br(),
+                        br(),
+                        br(),
+                        br(),
+                        br(),
+                        br(),
+                        br(),
+                        br(),
+                        h3("Choosing Models"), 
                         p("Initially, I constructed three different models to predict attitudes towards China
                                                                       for G20 member states with three levels
                                                                       of complexity. The simplest model used only one continuous 
@@ -233,7 +283,20 @@ ui <- navbarPage(
                           model."),
                         br()
                  ),
-                 column(4 
+                 column(8, 
+                        tabsetPanel(
+                          tabPanel("Simple Imports from China Model", 
+                                   gt_output("simple_export")), 
+                          tabPanel("Simple Imports from China Model with included Demographics", 
+                                   gt_output("demographic_export")),
+                          tabPanel("Simple Chinese Total Trade Model", 
+                                   gt_output("simple_trade")), 
+                          tabPanel("Simple Exports to China Model", 
+                                   gt_output("simple_import")),
+                          tabPanel("Medium Imports from China Model", 
+                                   gt_output("medium_export")), 
+                          tabPanel("Complex Imports from China Model", 
+                                   gt_output("complex_export")))  
                  )),
                br(),
                br(),
@@ -262,7 +325,8 @@ ui <- navbarPage(
                                      variation in number of responses per day). Because the number of lost attendees naturally
                                      matches with the span of time/method by which individual organizations calculated their lost revenue,
                                      it makes sense that it works effectively as a predictor on its own.")),
-                 column(4 
+                 column(2,
+                        gt_output("metrics_table")
                  ),
                  br(),
                  br(),
@@ -270,7 +334,7 @@ ui <- navbarPage(
                  # This row has a table and interpretation for my final model
                  
                  fluidRow(
-                   column(7, 
+                   column(8, 
                           h3("Interpreting the Final Model"),
                           p("The median of the posterior distribution of estimated revenue 
                                      loss for an organization with 0 lost attendees is $29,220.80, 
@@ -282,40 +346,97 @@ ui <- navbarPage(
                                      deviation of the lost revenue of small arts organizations, is 
                                      $31,490, suggesting that there is great variation, with some 
                                      organizations losing next to nothing and others losing over 50% 
-                                     of their annual budget (note that this only takes into account the March-May timeframe).")),
-                   column(4, 
-                          offset = 1 
-                   ),
+                                     of their annual budget (note that this only takes into account the March-May timeframe).",
+                            align = "center")),
+                   column(8, 
+                          offset = 1,
+                          tabsetPanel(
+                            tabPanel("Linear trend of aggregated G20 population's 
+                                     attitude towards China", 
+                                     plotOutput("trend_G20")),
+                            tabPanel("Linear trend of attitude towards China
+                                     by country", 
+                                     plotOutput("trend_country")))
+                   )),
                    br(),
                    br(),
                    
-                   # This row has my lovely histogram that predicts lost 
-                   # revenue for individual and average organizations based 
-                   # on lost attendees
+                   # This row has my  histogram that predicts
                    
                    fluidRow(
                      column(8,
-                            plotOutput("basic_export_model_posterior")
+                            plotOutput("basic_model_posterior")
                      ),
                      column(4, 
-                            h3("Predicting Revenue Loss"),
+                            h3("Predicting Median G20 Public Opinion towards
+                               China based on Chinese Imports-to-GDP Ratios
+                               (Chinese Import Dependence)"),
                             p("Use the slider below to make predictions about how much
-                                     an organization of a budget between $100,000 and $249,000 
-                                     with a certain number of lost attendees may have lost in revenue
-                                     during the first few months of the pandemic."),
+                                     global attitudes will change towards China with increased
+                                     levels of Chinese goods exported to their home country.
+                              0 = 0% import-to-GDP ratio; 100 = 100% import-to-GDP ratio"),
                             
                             # This slider allows the user to choose the number
                             # of lost attendees. It starts at 0 and
                             # the user can choose from there in increments
                             # of 200
                             
-                            sliderInput("user_percentage", "Percentage Dependence on Chinese Imports",
+                            sliderInput("user_percentage", "Percentage Dependence on Importing Chinese Goods
+                                        as Ratio of GDP",
                                         min = 0, max = 100,
-                                        value = 0, step = 1))))
-                 
-                 
-                 
-               ))))
+                                        value = 0, step = 1)))
+               )))),
+    tabPanel("About", 
+             
+             h2("About this project"),
+             br(),
+             h4("Project Background and Motivations"),
+             p("For this project I intend to study American attitudes
+               towards China over a longitudinal time period. I am 
+               particuarly interested in how identity factors into American
+               attitudes to China. For instance, is a white Republican from
+               Alabama more likely to have negative attitudes towards China
+               than an Asian-American Democrat Californian? In other words,
+               how might Social Identity Theory predict American attitudes
+               to China on different dimensions? I plan to use a number of
+               datasets to answer these questions including the American 
+               National Election Studies (ANES) timseries datasets and 
+               the Pew Global Attitudes surveys. Both of these datasets have
+               thousands of participants and are conducted by well-respected 
+               research organizations within the academic community. ANES is
+               conducted by a combined team from the University of Michigan and
+               Stanford University. It is run before and after every national 
+               presidential election in the United States. The Pew Global
+               Attitudes & Trends Survey is conducted by the Pew Research 
+               Center on a biannual basis and includes respondents from over
+               15 countries each iteration. My hope is to combine the
+               relevant datasets over time and see how attitudes towards
+               China have changed longitudinally and specifically whether
+               there have been correlations in changes in American public
+               opinion and increased funding in Chinese public diplomacy
+               efforts. This final project for Government 50 will constitute
+               one component of my Senior Thesis, required for graduation."),
+             p("The data on public opinion  came from", 
+               a("The Pew Research Center's Global Attitudes and Trends polling series.", 
+                 href = "https://www.pewresearch.org/global/"),
+               "The data on trade flows sectors was reported from the International 
+            Monetary Fund and can be accessed", 
+               a("on their website.", href = "https://data.imf.org/?sk=9d6028d4-f14a-464c-a2f2-59b2cd424b85"),
+               "The data on GDP for each country was reported from the Organization
+            for Ec0nomic Co-operation and Development and can be accessed", 
+               a("on their website here.", href = "https://data.oecd.org/gdp/gross-domestic-product-gdp.htm")),
+             p("For the code used to create this project, check out my", 
+               a("Github Repository.", 
+                 href = "https://github.com/jberry2/milestones_final_project")),
+             br(),
+             h4("Acknowlegements"),
+             p("First and foremost, I would like to thank my TF Mitchell who was a wonderful teacher to have during this difficult
+               semester."), 
+             h2("About Me"),
+             br(),
+             p("My name is Joshua Berry and I study political science at
+             Harvard College. 
+             You can reach me at jberry@college.harvard.edu."))
     
 )
   
@@ -379,18 +500,99 @@ output$import_billions <- renderPlot({
 
 
 output$variable_table <- render_gt({
-  
   model_variables %>%
     gt() %>%
     tab_header("Explanation of Variables Included in Different Models")
 })
 
+output$simple_export <- render_gt({
+  tbl_regression(basic_export_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Simple Imports Regression of Global Attitudes Torwards China",
+               subtitle = "The Predicted Effect of Imports from China Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+})
+
+output$simple_trade <- render_gt({
+  tbl_regression(basic_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Simple Total Trade Regression of Global Attitudes Torwards China",
+               subtitle = "The Predicted Effect of Chinese Total Trade Flow Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+})
+
+output$simple_import <- render_gt({
+  tbl_regression(basic_import_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Simple Exports Regression of Global Attitudes Torwards China",
+               subtitle = "The Predicted Effect of Exports to China Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attitudes & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+})
+
+output$medium_export <- render_gt({
+  tbl_regression(medium_export_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Medium Regression of Global Attitudes Torwards China",
+               subtitle = "The Predicted Effect of Imports from China Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+})
+
+output$complex_export <- render_gt({
+  tbl_regression(complex_export_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Complex Regression of Global Attitudes Torwards China",
+               subtitle = "The Predicted Effect of Imports from China Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+})
+
+output$demographic_export <- render_gt({
+  tbl_regression(simple_export_demographic_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Simple Regression of Global Attitudes (with Demographics) Torwards China",
+               subtitle = "The Predicted Effect of Imports from China Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+})
+
+output$metrics_table <- render_gt({
+
+    tibble("Model Name" = c("Simple Model", "Simple Demographics Model",
+                                             "Medium Model", "Complex Model", 
+                                             "Simple Exports to China Model", 
+                                             "Simple Total Trade Model"),
+            "Standard Error" = c(.8967, .8930, .8935, .8873, .8975, .8975)) %>%
+    gt() %>%
+    tab_header("Comparing Basic Metrics")
+})
+
 output$country_opinion <- renderPlot({
   pew %>%
     group_by(COUNTRY, year) %>%
-    drop_na(fav_china_logistic) %>%
-    summarize(country_fav_prop = sum(fav_china_logistic)/n(),
-              country_unfav_prop = sum(fav_china_logistic == 0)/n()) %>%
+    summarize(country_fav_prop = sum(fav_china_logistic, na.rm = TRUE)/n(),
+              country_unfav_prop = sum(fav_china_logistic == 0, na.rm = TRUE)/n()) %>%
     filter(COUNTRY == input$COUNTRY) %>%
     ggplot(aes(x = year)) +
     geom_line(aes(y = country_fav_prop, color = "steelblue")) +
@@ -424,6 +626,29 @@ da36806.0001 %>%
          theme_bw()
     })
 
+output$trend_country <- renderPlot({
+  pew %>%
+    ggplot(aes(y = fav_china_scale, x = china_export_prop)) +
+    geom_point(alpha = 100, color = "gray") +
+    geom_smooth(method = "glm", formula = y~x) +
+    facet_wrap(~ COUNTRY) +
+    labs(title = "Trends Differ According to Country",
+         x = "Ratio of Chinese Import Value to GDP (in USD)",
+         y = "Attitudes towards China") +
+    theme_bw()
+})
+
+output$trend_G20 <- renderPlot({
+  pew %>%
+    ggplot(aes(y = fav_china_scale, x = china_export_prop)) +
+    geom_point(alpha = 100, color = "lavender") +
+    geom_smooth(method = "glm", formula = y~x) +
+    labs(title = "Yet among the aggregated G20 itself, viwes shift negative",
+         x = "Ratio of Chinese Import Value to GDP (in USD)",
+         y = "Attitudes towards China") +
+    theme_bw()
+})
+
 output$distPlot3 <- renderPlot({
 da36806.0001 %>%
     ggplot(aes(x = Q45_6, fill = Q1025)) +
@@ -441,7 +666,7 @@ da36806.0001 %>%
         theme_bw()
     })
 
-output$basic_export_model_posterior <- renderPlot({
+output$basic_model_posterior <- renderPlot({
   new_obs <- tibble(china_export_prop = input$user_percentage)
   
   posterior_predict(basic_export_model, newdata = new_obs) %>%
@@ -451,8 +676,9 @@ output$basic_export_model_posterior <- renderPlot({
     geom_histogram(aes(y = after_stat(count/sum(count))),
                    bins = 150, color = "white", fill = "blue")  +
     labs(title = "Predictive Posterior Probability Distribution",
-         subtitle = "For a __% change in Chinese imports as percentage of GDP",
-         x = "Predicted Median Attitude for All Countries on Pew Scale (1-4)",
+         subtitle = "For a __% change in Chinese Imports by X Country as percentage of GDP",
+         x = "Predicted G20 Median Attitude on Favorability Towards China 
+         (1 = Very unfavorable, 4 = Very favorable)",
          y = "Probability") +
     scale_y_continuous(labels = scales::percent_format()) +
     theme_classic()
@@ -499,9 +725,9 @@ output$basic_plot <- renderPlot({
                    color = "gray97",
                    bins = 100) +
     labs(title = "Posterior Probability Distribution of Global Attitudes Towards China",
-         subtitle = "The Effect of Import Dependence on Favorability 
-             Towards China (1 = Very unfavorable, 4 = Very favorable)",
-         x = "Attitudes Towards China",
+         subtitle = "Predicted Effect of a 1% increase in Chinese Imports to GDP ration
+          on Favorability Towards China (1 = Very unfavorable, 4 = Very favorable)",
+         x = "Predicted G20 Attitude Towards China",
          y = "Probability") +
     theme_classic()
  })
@@ -511,9 +737,8 @@ output$basic_plot <- renderPlot({
 output$country_facet_plot <- renderPlot({
   pew %>%
     group_by(COUNTRY, year) %>%
-    drop_na(fav_china_logistic) %>%
-    summarize(country_fav_prop = sum(fav_china_logistic)/n(),
-              country_unfav_prop = sum(fav_china_logistic == 0)/n()) %>%
+    summarize(country_fav_prop = sum(fav_china_logistic, na.rm = TRUE)/n(),
+              country_unfav_prop = sum(fav_china_logistic == 0, na.rm = TRUE)/n()) %>%
     ggplot(aes(x = year)) +
     geom_line(aes(y = country_fav_prop, color = "steelblue")) +
     geom_line(aes(y = country_unfav_prop, color = "darkred")) +
@@ -534,23 +759,6 @@ output$country_facet_plot <- renderPlot({
     theme_linedraw()
 })
 
-
-# output$myTable <- renderTable({ 
-#  basic_model <- stan_glm(data = pew,
- #                         formula = fav_china_scale ~ trade_flow_prop,
- #                         refresh = 0)
-  
-#  print(basic_model, digits = 4)
-  
- # tbl_regression(basic_model, intercept = TRUE) %>%
- #   as_gt() %>%
-  #  tab_header(title = "Regression of Global Attitudes Torwards China",
-  #             subtitle = "The Effect of Total Trade Flow on Favorability 
-  #           Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
- #   tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
-     #                IMF World Trade Flows (2009-2019),
-    #                 World Bank G20 GDPs (2019-2019)"))}
-# )
 
 
 

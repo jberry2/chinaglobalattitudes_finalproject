@@ -18,6 +18,10 @@ library(sf)
 library(rnaturalearth)
 library(rnaturalearthdata)
 library(rgeos)
+library(DALEX)
+library(tidymodels)
+library(performance)
+library(Metrics)
 ```
 
 ## R Markdown
@@ -127,6 +131,14 @@ pew <- readRDS("pew.RDS")   %>%
                                      fav_China == "Very favorable" ~ 1,
                                      TRUE ~ NA_real_)) 
 
+pew <- pew %>%
+  mutate(econ_sit = as.character(econ_sit)) %>%
+  mutate(econ_sit = case_when(econ_sit == "Very good" ~ "Very good",
+                                     econ_sit == "Somewhat good" ~ "Somewhat good",
+                                     econ_sit == "Somewhat bad" ~ "Somewhat bad",
+                                     econ_sit == "Very bad" ~ "Very bad",
+                                     TRUE ~ NA_real_)) 
+
 
 saveRDS(pew, "pew.RDS")
 
@@ -161,9 +173,9 @@ posterior_predict(basic_export_model, newdata = new_obs) %>%
     geom_histogram(aes(y = after_stat(count/sum(count))),
                    bins = 150, color = "white", fill = "blue")  +
     labs(title = "Posterior Probability Distribution",
-         subtitle = "For a __% change in Chinese imports as percentage of GDP",
-         x = "Negative Effect on Public Opinion",
-         y = "Probability") +
+         subtitle = "For a __% change in Chinese Exports to X Country as percentage of GDP",
+         x = "Predicted Median Attitude for All Countries on Pew Scale (1-4)",
+         y = "Probability")  +
     scale_y_continuous(labels = scales::percent_format()) +
     theme_classic()
 
@@ -274,7 +286,7 @@ pew %>%
 model_variables <- tibble(name = c("china_export_prop",
                               "china_import_prop", "trade_flow_prop", 
                               "econ_sit","country_satis", "satisfied_democracy",
-                              "children_betterOff", "internet", "social_net",
+                              "children_better0ff", "use_internet", "social_net",
                               "gender", "age"),
                      
                      # This row gives a description of the variables
@@ -341,9 +353,8 @@ saveRDS(model_variables, "model_variables.RDS")
 
 pew %>%
   group_by(COUNTRY, year) %>%
-  drop_na(fav_china_logistic) %>%
-  summarize(country_fav_prop = sum(fav_china_logistic)/n(),
-            country_unfav_prop = sum(fav_china_logistic == 0)/n()) %>%
+  summarize(country_fav_prop = sum(fav_china_logistic, na.rm = TRUE)/n(),
+            country_unfav_prop = sum(fav_china_logistic == 0, na.rm = TRUE)/n()) %>%
   ggplot(aes(x = year)) +
   geom_line(aes(y = country_fav_prop, color = "steelblue")) +
   geom_line(aes(y = country_unfav_prop, color = "darkred")) +
@@ -366,9 +377,8 @@ pew %>%
 
 pew %>%
   group_by(COUNTRY, year) %>%
-  drop_na(fav_china_logistic) %>%
-  summarize(country_fav_prop = sum(fav_china_logistic)/n(),
-            country_unfav_prop = sum(fav_china_logistic == 0)/n()) %>%
+  summarize(country_fav_prop = sum(fav_china_logistic, na.rm = TRUE)/n(),
+            country_unfav_prop = sum(fav_china_logistic == 0, na.rm = TRUE)/n()) %>%
   filter(COUNTRY == input$COUNTRY) %>%
   ggplot(aes(x = year)) +
   geom_line(aes(y = country_fav_prop, color = "steelblue")) +
@@ -458,5 +468,153 @@ map_trade <- ggplot(data = world) +
   theme_classic()
 
 ggsave("map_trade.png", map_trade)
+```
+
+```{r}
+basic_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ trade_flow_prop,
+         refresh = 0)
+
+saveRDS(basic_model, "basic_model.RDS")
+
+tbl_regression(basic_model, intercept = TRUE,
+               estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+  as_gt() %>%
+  tab_header(title = "Regression of Global Attitudes Torwards China",
+             subtitle = "The Predicted Effect of Chinese Total Trade Flow Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+  tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+basic_export_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ china_export_prop,
+         refresh = 0)
+
+saveRDS(basic_export_model, "basic_export_model.RDS")
+
+tbl_regression(basic_export_model, intercept = TRUE,
+               estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+  as_gt() %>%
+  tab_header(title = "Regression of Global Attitudes Torwards China",
+             subtitle = "The Predicted Effect of Imports from China Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+  tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+medium_export_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ china_export_prop + econ_sit,
+         refresh = 0)
+
+saveRDS(medium_export_model, "medium_export_model.RDS")
+
+tbl_regression(medium_export_model, intercept = TRUE,
+               estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+  as_gt() %>%
+  tab_header(title = "Medium Regression of Global Attitudes Torwards China",
+             subtitle = "The Predicted Effect of Imports from China Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+  tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+complex_export_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ china_export_prop + econ_sit + country_satis +
+           satisfied_democracy + children_betteroff + use_internet + social_net,
+         refresh = 0)
+
+saveRDS(complex_export_model, "complex_export_model.RDS")
+
+tbl_regression(complex_export_model, intercept = TRUE,
+               estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+  as_gt() %>%
+  tab_header(title = "Complex Regression of Global Attitudes Torwards China",
+             subtitle = "The Predicted Effect of Imports from China Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+  tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+simple_export_demographic_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ china_export_prop + sex + age,
+         refresh = 0)
+
+saveRDS(simple_export_demographic_model, "simple_export_demographic_model.RDS")
+
+tbl_regression(simple_export_demographic_model, intercept = TRUE,
+               estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+  as_gt() %>%
+  tab_header(title = "Medium Regression of Global Attitudes Torwards China",
+             subtitle = "The Predicted Effect of Imports from China Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+  tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+
+basic_import_model <- stan_glm(data = pew,
+         formula = fav_china_scale ~ china_import_prop,
+         refresh = 0)
+
+saveRDS(basic_import_model, "basic_import_model.RDS")
+
+
+
+tbl_regression(basic_import_model, intercept = TRUE,
+               estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+  as_gt() %>%
+  tab_header(title = "Regression of Global Attitudes Torwards China",
+             subtitle = "The Predicted Effect of Exports to China Dependence on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)") %>%
+  tab_source_note(md("Pew Global Attitudes & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+```
+
+
+```{r}
+# metrics
+
+performance_rmse(basic_export_model, normalized = FALSE)
+
+rmse(basic_import_model, normalized = FALSE)
+
+performance_rmse(basic_model, normalized = FALSE)
+
+performance_rmse(medium_export_model, normalized = FALSE)
+
+performance_rmse(simple_export_demographic_model, normalized = FALSE)
+
+performance_rmse(complex_export_model, normalized = FALSE)
+
+  model_error_tbl <- tibble("Model Name" = c("Simple Model", "Simple Demographics Model",
+                                             "Medium Model", "Complex Model", 
+                                             "Simple Exports to China Model", 
+                                             "Simple Total Trade Model"),
+                            "Standard Error" = c(.8967, .8930, .8935, .8873, .8975, .8975))
+  
+  print(basic_model, digits = 4)
+  rmse(pew$fav_china_scale, basic_export_model)
+```
+```{r}
+pew %>%
+  ggplot(aes(y = fav_china_scale, x = china_export_prop)) +
+  geom_point(alpha = 100, color = "gray") +
+  geom_smooth(method = "glm", formula = y~x) +
+facet_wrap(~ COUNTRY) +
+  labs(title = "Trends Differ According to Country",
+       x = "Ratio of Chinese Import Value to GDP (in USD)",
+       y = "Attitudes towards China") +
+  theme_bw()
+
+pew %>%
+  ggplot(aes(y = fav_china_scale, x = china_export_prop)) +
+  geom_point(alpha = 100, color = "lavender") +
+  geom_smooth(method = "glm", formula = y~x) +
+  labs(title = "Yet among the aggregated G20 itself, viwes shift negative",
+       x = "Ratio of Chinese Import Value to GDP (in USD)",
+       y = "Attitudes towards China") +
+  theme_bw()
 ```
 
