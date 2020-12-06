@@ -1,0 +1,13 @@
+name: g20chinaviewsfinalproject
+title: g20chinaviewsfinalproject
+username:
+account: josh-berry
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3360971
+bundleId: 3951049
+url: https://josh-berry.shinyapps.io/g20chinaviewsfinalproject/
+when: 1607275611.56425
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: anes_timeseries_2012_dta.zip|anes_timeseries_2012.dta|animation.Rmd|script_here.R|anes_timeseries_2012_dta/.DS_Store|anes_timeseries_2012_dta/anes_timeseries_2012_Stata12.dta|anes_timeseries_2012_dta/anes_timeseries_2012_userguidecodebook.pdf|IMF/.DS_Store|IMF/OECD_G20_GDP/.DS_Store|IMF/OECD_G20_GDP/Unconfirmed 178932.crdownload|www/map_trade.png

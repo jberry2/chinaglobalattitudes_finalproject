@@ -14,7 +14,7 @@ tabPanel("Modeling Global Attitudes",
            fluidRow(
              column(5, 
                     h3("Focusing on Trade-to-GDP Ratios"),
-                    p("The trade-toGDP ratio is an indicator of the relative importance of
+                    p("The trade-to-GDP ratio is an indicator of the relative importance of
                           international trade in the economy of a country. It is calculated by dividing the
                           aggregate value of imports amd exports over a period of time by the 
                           gross domestic product for the same period. The trade-to-GDP ratio is often 

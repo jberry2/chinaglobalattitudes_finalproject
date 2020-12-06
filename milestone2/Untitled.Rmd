@@ -1,0 +1,38 @@
+---
+title: "Untitled"
+author: "Joshua Berry"
+date: "12/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+anes <- readRDS("chinese_military_threat.rds")
+
+pew <- readRDS("pew.RDS")
+
+basic_model <- readRDS("basic_model.rds")
+
+basic_import_model <- readRDS("basic_import_model.RDS")
+
+basic_export_model <- readRDS("basic_export_model.RDS")
+
+model_variables <- readRDS("model_variables.RDS")
+
+medium_export_model <- readRDS("medium_export_model.RDS")
+
+complex_export_model <- readRDS("complex_export_model.RDS")
+
+simple_export_demographic_model <- 
+  readRDS("simple_export_demographic_model.RDS")
+
+america_model <- readRDS("america_model.RDS")
+
+load("36806-0001-Data.rda")
+```
+

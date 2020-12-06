@@ -1,0 +1,13 @@
+name: globalattidudeschinafinalproject
+title: globalattidudeschinafinalproject
+username:
+account: josh-berry
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3361687
+bundleId: 3951481
+url: https://josh-berry.shinyapps.io/globalattidudeschinafinalproject/
+when: 1607283080.73048
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: www/map_trade.png
