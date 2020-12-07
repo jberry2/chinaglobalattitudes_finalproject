@@ -1,0 +1,213 @@
+---
+title: "saved_graphs"
+author: "Joshua Berry"
+date: "12/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+library(shiny)
+library(tidyverse)
+library(shinythemes)
+library(gt)
+library(gtsummary)
+library(broom.mixed)
+library(rstanarm)
+```
+
+## R Markdown
+
+```{r}
+anes <- readRDS("chinese_military_threat.rds")
+
+pew <- readRDS("pew.RDS")
+
+basic_model <- readRDS("basic_model.rds")
+
+basic_import_model <- readRDS("basic_import_model.RDS")
+
+basic_export_model <- readRDS("basic_export_model.RDS")
+
+model_variables <- readRDS("model_variables.RDS")
+
+medium_export_model <- readRDS("medium_export_model.RDS")
+
+complex_export_model <- readRDS("complex_export_model.RDS")
+
+simple_export_demographic_model <- 
+  readRDS("simple_export_demographic_model.RDS")
+
+america_model <- readRDS("america_model.RDS")
+
+load("36806-0001-Data.rda")
+```
+
+```{r}
+
+
+readRDS("gdp_billions.RDS")
+
+gdp_billions <-  pew %>%
+    ggplot(aes(x = year, y = gdp_billions)) +
+    geom_line(color = "blue") +
+    facet_wrap(~COUNTRY) +
+    labs(title = "GDP of Country by Year",
+         subtitle = "The Effect of Total Trade Flow on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)",
+         x = "Year",
+         y = "GDP in Billions of US Dollars") +
+    theme_classic()
+
+saveRDS(gdp_billions, "gdp_billions.RDS")
+
+export_billions <- 
+    gdp_billions <-  pew %>%
+    ggplot(aes(x = year, y = gdp_billions)) +
+    geom_line(color = "blue") +
+    facet_wrap(~COUNTRY) +
+    labs(title = "GDP of Country by Year",
+         subtitle = "The Effect of Total Trade Flow on Favorability 
+             Towards China (1 = Very unfavorable, 4 = Very favorable)",
+         x = "Year",
+         y = "GDP in Billions of US Dollars") +
+    theme_classic()
+
+saveRDS(export_billions, "export_billions.RDS")
+
+import_billions <-
+    pew %>%
+    ggplot(aes(x = year, y = china_imports_billions)) +
+    geom_line(color = "green") +
+    facet_wrap(~COUNTRY) +
+    labs(title = "Chinese Imports by Year",
+    subtitle = "The amount of Imports that China has recieved from other 
+    G20 members has varied over time",
+    x = "Year",
+    y = "Import Value in Billions of US Dollars") +
+    theme_classic()
+
+saveRDS(import_billions, "import_billions.RDS")
+  
+
+```
+
+```{r}
+basic_export_model_table <-  tbl_regression(basic_export_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+  as_gt() %>%
+  tab_header(title = "Simple Imports Regression of Global Attitudes Torwards
+             China", subtitle = "The Predicted Effect of Imports from China 
+             Dependence on Favorability Towards China (1 = Very unfavorable,
+             4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+saveRDS(basic_export_model_table, "basic_export_model_table.RDS")
+
+
+simple_trade <-  tbl_regression(basic_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Simple Total Trade Regression of Global Attitudes 
+               Torwards China", 
+               subtitle = "The Predicted Effect of Chinese Total Trade Flow 
+               Dependence on Favorability Towards China (1 = Very unfavorable,
+               4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+saveRDS(simple_trade, "simple_trade.RDS")
+
+simple_import <-   
+  tbl_regression(basic_import_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Simple Exports Regression of Global Attitudes Torwards 
+               China",
+               subtitle = "The Predicted Effect of Exports to China Dependence 
+               on Favorability Towards China (1 = Very unfavorable,
+               4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attitudes & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+saveRDS(simple_import, "simple_import.RDS")
+
+medium_export <-   
+  tbl_regression(medium_export_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Medium Regression of Global Attitudes Torwards China",
+               subtitle = "The Predicted Effect of Imports from China Dependence
+               on Favorability Towards China (1 = Very unfavorable,
+               4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+saveRDS(medium_export, "medium_export.RDS")
+
+complex_export <-
+    tbl_regression(complex_export_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Complex Regression of Global Attitudes Torwards China",
+               subtitle = "The Predicted Effect of Imports from China Dependence
+               on Favorability Towards China (1 = Very unfavorable,
+               4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+saveRDS(complex_export, "complex_export.RDS")
+
+demographic_export <-
+  tbl_regression(simple_export_demographic_model, intercept = TRUE,
+                 estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    as_gt() %>%
+    tab_header(title = "Simple Regression of Global Attitudes
+               (with Demographics) Torwards China",
+               subtitle = "The Predicted Effect of Imports from China Dependence
+               on Favorability Towards China (1 = Very unfavorable, 
+               4 = Very favorable)") %>%
+    tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+                     IMF World Trade Flows (2009-2019),
+                     World Bank G20 GDPs (2019-2019)"))
+
+saveRDS(demographic_export, "demographic_export.RDS")
+
+```
+
+
+```{r}
+country_opinion<-
+  pew %>%
+    group_by(COUNTRY, year) %>%
+    summarize(country_fav_prop = sum(fav_china_logistic, na.rm = TRUE)/n(),
+       country_unfav_prop = sum(fav_china_logistic == 0, na.rm = TRUE)/n()) %>%
+    filter(COUNTRY == input$COUNTRY) %>%
+    ggplot(aes(x = year)) +
+    geom_line(aes(y = country_fav_prop, color = "steelblue")) +
+    geom_line(aes(y = country_unfav_prop, color = "darkred")) +
+    theme(axis.text = element_text(size = 5),
+          axis.text.x = element_text(angle = 45),
+          strip.text = element_text(size = 7),
+          panel.grid = element_blank(), 
+          panel.spacing.x = unit(3, "mm"),
+          axis.ticks = element_blank()) +
+    scale_x_continuous(breaks = c(2009:2019),
+      labels = c("2009", "", "", "", "", "", "", "", "", "", "2019")) +
+    labs(title = "Evaluations of China across ____, a G20 economy",
+         subtitle = "% who have a(n) view of China",
+         x = "Year",
+         y = "Public Opinion") +
+    scale_color_discrete(name = "Favorable/Unfavorable", 
+                         labels = c("Unfavorable", "Favorable")) +
+    theme_linedraw()
+```
+
