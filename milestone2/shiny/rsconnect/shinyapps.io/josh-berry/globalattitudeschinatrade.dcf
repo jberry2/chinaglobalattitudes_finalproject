@@ -1,0 +1,13 @@
+name: globalattitudeschinatrade
+title: globalattitudeschinatrade
+username:
+account: josh-berry
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3385835
+bundleId: 3972628
+url: https://josh-berry.shinyapps.io/globalattitudeschinatrade/
+when: 1607635768.84726
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: 36806-0001-Data.rda|america_model.RDS|basic_export_model.RDS|basic_import_model.RDS|basic_model.rds|chinese_military_threat.rds|complex_export_model.RDS|edited_project_evening.R|export_billions.RDS|gather.Rmd|gdp_billions.RDS|graphs_home.Rmd|import_billions.RDS|map_trade.RDS|medium_export_model.RDS|simple_export_demographic_model.RDS|www/map_trade.png

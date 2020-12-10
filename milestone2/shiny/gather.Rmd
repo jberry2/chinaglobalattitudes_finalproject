@@ -145,10 +145,18 @@ pew <- pew %>%
                                      econ_sit == "Very bad" ~ "Very bad",
                                      TRUE ~ NA_real_)) 
 
+pew <- readRDS("pew.RDS")
+
+
 
 saveRDS(pew, "pew.RDS")
 
 pew <- readRDS("pew.RDS")
+
+pew %>%
+  filter(year %in% c(2015, 2016, 2017, 2018, 2019))
+
+saveRDS(pew, "pew.RDS")
 
 set.seed(10)
 basic_model <- stan_glm(data = pew,

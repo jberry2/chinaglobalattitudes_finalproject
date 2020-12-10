@@ -5,9 +5,9 @@ account: josh-berry
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3363341
-bundleId: 3952771
+bundleId: 3956790
 url: https://josh-berry.shinyapps.io/globalattitudeschinafinalproject/
-when: 1607306476.75784
+when: 1607372219.03963
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: basic_export_model_table.RDS|complex_export.RDS|demographic_export.RDS|edited_project_evening.R|export_billions.RDS|gather.Rmd|gdp_billions.RDS|import_billions.RDS|map_trade.RDS|medium_export.RDS|simple_import.RDS|simple_trade.RDS|www/.DS_Store|www/map_trade.png

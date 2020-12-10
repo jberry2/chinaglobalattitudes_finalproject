@@ -12,34 +12,69 @@
 library(shiny)
 library(tidyverse)
 library(shinythemes)
-library(gtsummary)
 library(gt)
+library(gtsummary)
 library(broom.mixed)
+library(rstanarm)
 
 # loading RDS and objects
 
-anes <- readRDS("chinese_military_threat.rds")
+# anes <- readRDS("chinese_military_threat.rds")
+
+anes_graph <- readRDS("anes_graph.RDS")
 
 pew <- readRDS("pew.RDS")
 
-basic_model <- readRDS("basic_model.rds")
+# basic_export_model <- readRDS("basic_export_model.RDS")
 
-basic_import_model <- readRDS("basic_import_model.RDS")
+basic_export_model_table <- readRDS("basic_export_model_table.RDS")
 
-basic_export_model <- readRDS("basic_export_model.RDS")
+# basic_import_model <- readRDS("basic_import_model.RDS")
+
+simple_import_table <- readRDS("simple_import.RDS")
+
+# basic_model <- readRDS("basic_model.RDS")
+
+simple_trade_table <- readRDS("simple_trade.RDS")
+
+# complex_export_model <- readRDS("complex_export_model.RDS")
+
+complex_export_table <- readRDS("complex_export.RDS")
+
+# medium_export_model <- readRDS("medium_export_model.RDS")
+
+medium_export_table <- readRDS("medium_export.RDS")
+
+# simple_export_demographic_model <- readRDS("simple_export_demographic_model.RDS")
+
+demographic_export_table <- readRDS("demographic_export.RDS")
 
 model_variables <- readRDS("model_variables.RDS")
 
-medium_export_model <- readRDS("medium_export_model.RDS")
+gdp_millions <- readRDS("gdp_millions.RDS")
 
-complex_export_model <- readRDS("complex_export_model.RDS")
+export_millions <- readRDS("export_millions.RDS")
 
-simple_export_demographic_model <- 
-  readRDS("simple_export_demographic_model.RDS")
+country_facet <- readRDS("country_facet.RDS")
 
-america_model <- readRDS("america_model.RDS")
+import_millions <- readRDS("import_millions.RDS")
 
-load("36806-0001-Data.rda")
+# america_model <- readRDS("america_model.RDS")
+
+america_model_graph <- readRDS("america_model_graph.RDS")
+
+# load("36806-0001-Data.rda")
+
+feeling_therm <- readRDS("feeling_therm.RDS")
+
+party_post <- readRDS("party_post.RDS")
+
+basic_plot <- readRDS("basic_plot.RDS")
+
+trend_g20 <- readRDS("trend_g20.RDS")
+
+trend_country <- readRDS("trend_country.RDS")
+
 
 ui <- navbarPage(
   
@@ -144,11 +179,11 @@ ui <- navbarPage(
                       
                       tabsetPanel(
                         tabPanel("GDP Growth by Year", 
-                                 plotOutput("gdp_billions")), 
+                                 plotOutput("gdp_millions")), 
                         tabPanel("Chinese Exports to _____ Country, by Year", 
-                                 plotOutput("export_billions")), 
+                                 plotOutput("export_millions")), 
                         tabPanel("Chinese Imports from _____ Country, by Year", 
-                                 plotOutput("import_billions")))
+                                 plotOutput("import_millions")))
                )
              ),
              br(),
@@ -201,16 +236,16 @@ ui <- navbarPage(
        polling from both Pew and the Chicago council, negative views have
        continued to climb since Donald Trump took office. This public opinion
        trend holds importance to how elite level politicians navigate
-       increasingly tense relations between the world's two largest 
+       increasingly tense relations between the world's two largest
        economies."),
            
            br(),
            br(),
            
            fluidRow(
-             column(8, 
+             column(8,
                     
-                    selectInput("rd","Select a visualization to view", 
+                    selectInput("rd","Select a visualization to view",
                                 choices = c("American Feeling Thermometer (2016)",
                                             "Attitudes by Party",
                                             "Posterior Probability Distribution by Party",
@@ -368,7 +403,10 @@ ui <- navbarPage(
        deviation of change in atittudes, is 
        .8967, suggesting that there is a good deal of variation in attitudes
       among the G20 countries. This makes sense when plotting the linear
-      regressions of attitude change for each country as seen below.",
+      regressions of attitude change for each country as seen below.
+      This difference in attitudes by country is likely due to macro
+                            level differences in each G20 country,
+                            their political system, and their economy.",
                             align = "center")),
                    column(8, 
                           offset = 1,
@@ -381,34 +419,33 @@ ui <- navbarPage(
                                      plotOutput("trend_country")))
                    )),
                  br(),
-                 br(),
-               )))),
+                 br())))),
   
   # I had to comment out my big live model so the projecty
   # could deploy online. I will still show it live tomorrow though.
   
-  #  fluidRow(
-  #      column(8,
-  #   plotOutput("basic_model_posterior")
-  #     ),
-  #     column(4, 
-  #    h3("Predicting Median G20 Public Opinion towards
-  #        China based on Chinese Imports-to-GDP Ratios
+  # fluidRow(
+  #     column(8,
+  #    plotOutput("basic_model_posterior")
+  #    ),
+  #   column(4, 
+  #   h3("Predicting Median G20 Public Opinion towards
+  #       China based on Chinese Imports-to-GDP Ratios
   #        (Chinese Import Dependence)"),
-  #         p("Use the slider below to make predictions about how much
-  #           global attitudes will change towards China with increased
-  #           levels of Chinese goods exported to their home country.
-  #           0 = 0% import-to-GDP ratio; 100 = 100% import-to-GDP ratio"),
+  #      p("Use the slider below to make predictions about how much
+  #       global attitudes will change towards China with increased
+  #        levels of Chinese goods exported to their home country.
+  #       0 = 0% import-to-GDP ratio; 100 = 100% import-to-GDP ratio"),
   
   # This slider allows the user to choose the number
   # of lost attendees. It starts at 0 and
   # the user can choose from there in increments
-  # of 200
+  # of 1
   
   # sliderInput("user_percentage", "Percentage Dependence on Importing Chinese Goods
-  #                                       as Ratio of GDP",
-  #                                       min = 0, max = 100,
-  #                                      value = 0, step = 1))))))),
+  #                                     as Ratio of GDP",
+  #                                   min = 0, max = 100,
+  #                                   value = 0, step = 1))))))),
   tabPanel("About", 
            
            # an about page with info about myself
@@ -476,70 +513,59 @@ ui <- navbarPage(
 
 server <- function(input, output) {
   
-  output$distPlot1 <- renderPlot({
-    
-    # This plot originally was a line plot but I thought bar would work better.
-    
-    anes %>%
-      filter(china_mil %in% c(1, 2, 3)) %>%
-      ggplot(aes(x = china_mil)) +
-      geom_histogram(fill = "firebrick3", binwidth = 1, color = "white") +
-      scale_x_discrete(limits = c("1", "2", "3"),
-                       labels = c("Major threat", "Minor threat", "not a threat")) +
-      labs(title = "Americans' Perspectives on the Chinese Military",
-           subtitle = "Policy and attitudes toward China, ANES Survey 2012",
-           x = "Chinese Military Threat",
-           y = "Count") +
-      theme_bw()
-  })
-  
-  output$gdp_billions <- renderPlot({
+  output$gdp_millions <- renderPlot({
     
     #a simple plot that shows linear trend over time. I replicated an example
     # from pset 3
+    # pew %>%
+    #   ggplot(aes(x = year, y = total_trade)) +
+    #   geom_line(color = "blue") +
+    #   facet_wrap(~COUNTRY) +
+    #   labs(title = "GDP of Country by Year",
+    #        subtitle = "The Effect of Total Trade Flow on Favorability 
+    #          Towards China (1 = Very unfavorable, 4 = Very favorable)",
+    #        x = "Year",
+    #        y = "GDP in Millions of US Dollars") +
+    #   theme_classic()
     
-    pew %>%
-      ggplot(aes(x = year, y = gdp_billions)) +
-      geom_line(color = "blue") +
-      facet_wrap(~COUNTRY) +
-      labs(title = "GDP of Country by Year",
-           subtitle = "The Effect of Total Trade Flow on Favorability 
-             Towards China (1 = Very unfavorable, 4 = Very favorable)",
-           x = "Year",
-           y = "GDP in Billions of US Dollars") +
-      theme_classic()
+    gdp_millions
   })
   
-  output$export_billions <- renderPlot({
+  output$export_millions <- renderPlot({
     
     # same principle as the previous plot
+    # 
+    # pew %>%
+    #   ggplot(aes(x = year, y = china_exports)) +
+    #   geom_line(color = "red") +
+    #   facet_wrap(~COUNTRY) +
+    #   labs(title = "Chinese Exports by year",
+    #        subtitle = "The amount of Exports that China has sent to other G20 
+    #         countries has varied over time",
+    #        x = "Year",
+    #        y = "Export Value in Millions of US Dollars") +
+    #   theme_classic()
     
-    pew %>%
-      ggplot(aes(x = year, y = china_exports_billions)) +
-      geom_line(color = "red") +
-      facet_wrap(~COUNTRY) +
-      labs(title = "Chinese Exports by Year",
-           subtitle = "The amount of Exports that China sent to other G20 members
-         has varied over time",
-           x = "Year",
-           y = "Export Value in Billions of US Dollars") +
-      theme_classic()
+    export_millions
+    
   })
   
-  output$import_billions <- renderPlot({
+  output$import_millions <- renderPlot({
     
     # same principles as previous two plots
+    # 
+    # pew %>%
+    #   ggplot(aes(x = year, y = china_imports)) +
+    #   geom_line(color = "green") +
+    #   facet_wrap(~COUNTRY) +
+    #   labs(title = "Chinese Imports by Year",
+    #        subtitle = "The amount of Imports that China has recieved from other 
+    # G20 members has varied over time",
+    #        x = "Year",
+    #        y = "Import Value in Millions of US Dollars") +
+    #   theme_classic()
     
-    pew %>%
-      ggplot(aes(x = year, y = china_imports_billions)) +
-      geom_line(color = "green") +
-      facet_wrap(~COUNTRY) +
-      labs(title = "Chinese Imports by Year",
-           subtitle = "The amount of Imports that China has recieved from other 
-    G20 members has varied over time",
-           x = "Year",
-           y = "Import Value in Billions of US Dollars") +
-      theme_classic()
+    import_millions
   })
   
   
@@ -557,83 +583,93 @@ server <- function(input, output) {
     
     # this table served as the base for the rest of my tables below. I followed
     # the example from the table we created in pset 8.
+    # tbl_regression(basic_export_model, intercept = TRUE,
+    #                estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    #   as_gt() %>%
+    #   tab_header(title = "Simple Imports Regression of Global Attitudes Torwards
+    #          China", subtitle = "The Predicted Effect of Imports from China 
+    #          Dependence on Favorability Towards China (1 = Very unfavorable,
+    #          4 = Very favorable)") %>%
+    #   tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+    #                  IMF World Trade Flows (2009-2019),
+    #                  World Bank G20 GDPs (2019-2019)"))
     
-    tbl_regression(basic_export_model, intercept = TRUE,
-                   estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
-      as_gt() %>%
-      tab_header(title = "Simple Imports Regression of Global Attitudes Torwards
-             China", subtitle = "The Predicted Effect of Imports from China 
-             Dependence on Favorability Towards China (1 = Very unfavorable,
-             4 = Very favorable)") %>%
-      tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
-                     IMF World Trade Flows (2009-2019),
-                     World Bank G20 GDPs (2019-2019)"))
+    basic_export_model_table
+    
   })
   
   output$simple_trade <- render_gt({
     
     # same description as above
     
-    tbl_regression(basic_model, intercept = TRUE,
-                   estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
-      as_gt() %>%
-      tab_header(title = "Simple Total Trade Regression of Global Attitudes 
-               Torwards China", 
-                 subtitle = "The Predicted Effect of Chinese Total Trade Flow 
-               Dependence on Favorability Towards China (1 = Very unfavorable,
-               4 = Very favorable)") %>%
-      tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
-                     IMF World Trade Flows (2009-2019),
-                     World Bank G20 GDPs (2019-2019)"))
+    # tbl_regression(basic_model, intercept = TRUE,
+    #                estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    #   as_gt() %>%
+    #   tab_header(title = "Simple Total Trade Regression of Global Attitudes 
+    #            Torwards China", 
+    #              subtitle = "The Predicted Effect of Chinese Total Trade Flow 
+    #            Dependence on Favorability Towards China (1 = Very unfavorable,
+    #            4 = Very favorable)") %>%
+    #   tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+    #                  IMF World Trade Flows (2009-2019),
+    #                  World Bank G20 GDPs (2019-2019)"))
+    
+    simple_trade_table
   })
   
   output$simple_import <- render_gt({
     
     # same description as above
     
-    tbl_regression(basic_import_model, intercept = TRUE,
-                   estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
-      as_gt() %>%
-      tab_header(title = "Simple Exports Regression of Global Attitudes Torwards 
-               China",
-                 subtitle = "The Predicted Effect of Exports to China Dependence 
-               on Favorability Towards China (1 = Very unfavorable,
-               4 = Very favorable)") %>%
-      tab_source_note(md("Pew Global Attitudes & Trends Survey (2009-2019), 
-                     IMF World Trade Flows (2009-2019),
-                     World Bank G20 GDPs (2019-2019)"))
+    # tbl_regression(basic_import_model, intercept = TRUE,
+    #                estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    #   as_gt() %>%
+    #   tab_header(title = "Simple Exports Regression of Global Attitudes Torwards 
+    #            China",
+    #              subtitle = "The Predicted Effect of Exports to China Dependence 
+    #            on Favorability Towards China (1 = Very unfavorable,
+    #            4 = Very favorable)") %>%
+    #   tab_source_note(md("Pew Global Attitudes & Trends Survey (2009-2019), 
+    #                  IMF World Trade Flows (2009-2019),
+    #                  World Bank G20 GDPs (2019-2019)"))
+    
+    simple_import_table
   })
   
   output$medium_export <- render_gt({
     
     # same description as above
     
-    tbl_regression(medium_export_model, intercept = TRUE,
-                   estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
-      as_gt() %>%
-      tab_header(title = "Medium Regression of Global Attitudes Torwards China",
-                 subtitle = "The Predicted Effect of Imports from China Dependence
-               on Favorability Towards China (1 = Very unfavorable,
-               4 = Very favorable)") %>%
-      tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
-                     IMF World Trade Flows (2009-2019),
-                     World Bank G20 GDPs (2019-2019)"))
+    # tbl_regression(medium_export_model, intercept = TRUE,
+    #                estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    #   as_gt() %>%
+    #   tab_header(title = "Medium Regression of Global Attitudes Torwards China",
+    #              subtitle = "The Predicted Effect of Imports from China Dependence
+    #            on Favorability Towards China (1 = Very unfavorable,
+    #            4 = Very favorable)") %>%
+    #   tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+    #                  IMF World Trade Flows (2009-2019),
+    #                  World Bank G20 GDPs (2019-2019)"))
+    
+    medium_export_table
   })
   
   output$complex_export <- render_gt({
     
     # same description as above
     
-    tbl_regression(complex_export_model, intercept = TRUE,
-                   estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
-      as_gt() %>%
-      tab_header(title = "Complex Regression of Global Attitudes Torwards China",
-                 subtitle = "The Predicted Effect of Imports from China Dependence
-               on Favorability Towards China (1 = Very unfavorable,
-               4 = Very favorable)") %>%
-      tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
-                     IMF World Trade Flows (2009-2019),
-                     World Bank G20 GDPs (2019-2019)"))
+    # tbl_regression(complex_export_model, intercept = TRUE,
+    #                estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    #   as_gt() %>%
+    #   tab_header(title = "Complex Regression of Global Attitudes Torwards China",
+    #              subtitle = "The Predicted Effect of Imports from China Dependence
+    #            on Favorability Towards China (1 = Very unfavorable,
+    #            4 = Very favorable)") %>%
+    #   tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+    #                  IMF World Trade Flows (2009-2019),
+    #                  World Bank G20 GDPs (2019-2019)"))
+    
+    complex_export_table
   })
   
   output$demographic_export <- render_gt({
@@ -641,17 +677,19 @@ server <- function(input, output) {
     # same description as above although now the tables get a bit longer and 
     # more complicated
     
-    tbl_regression(simple_export_demographic_model, intercept = TRUE,
-                   estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
-      as_gt() %>%
-      tab_header(title = "Simple Regression of Global Attitudes
-               (with Demographics) Torwards China",
-                 subtitle = "The Predicted Effect of Imports from China Dependence
-               on Favorability Towards China (1 = Very unfavorable, 
-               4 = Very favorable)") %>%
-      tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
-                     IMF World Trade Flows (2009-2019),
-                     World Bank G20 GDPs (2019-2019)"))
+    # tbl_regression(simple_export_demographic_model, intercept = TRUE,
+    #                estimate_fun = function(x) style_sigfig(x, digits = 4)) %>%
+    #   as_gt() %>%
+    #   tab_header(title = "Simple Regression of Global Attitudes
+    #            (with Demographics) Torwards China",
+    #              subtitle = "The Predicted Effect of Imports from China Dependence
+    #            on Favorability Towards China (1 = Very unfavorable, 
+    #            4 = Very favorable)") %>%
+    #   tab_source_note(md("Pew Global Attidues & Trends Survey (2009-2019), 
+    #                  IMF World Trade Flows (2009-2019),
+    #                  World Bank G20 GDPs (2019-2019)"))
+    
+    demographic_export_table
   })
   
   output$metrics_table <- render_gt({
@@ -702,36 +740,38 @@ server <- function(input, output) {
       theme_linedraw()
   })
   
-  output$distPlot2 <- renderPlot({
-    
-    # this plot isn't used and is a base for selecting the plot to show
-    # on panel 2.
-    
-    da36806.0001 %>%
-      ggplot(aes(x = Q45_6)) +
-      geom_histogram(fill = "indianred", binwidth = 1) +
-      scale_x_discrete(limits = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
-      labs(title = "Americans' Feeling Thermometer Towards China ",
-           subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
-                100 = Very Warm; Chicago Council Survey 2016",
-           x = "American Feelings",
-           y = "Count") +
-      theme_bw()
-  })
+  # output$distPlot2 <- renderPlot({
+  #   
+  #    this plot isn't used and is a base for selecting the plot to show
+  #    on panel 2.
+  #   
+  #   da36806.0001 %>%
+  #     ggplot(aes(x = Q45_6)) +
+  #     geom_histogram(fill = "indianred", binwidth = 1) +
+  #     scale_x_discrete(limits = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
+  #     labs(title = "Americans' Feeling Thermometer Towards China ",
+  #          subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
+  #               100 = Very Warm; Chicago Council Survey 2016",
+  #          x = "American Feelings",
+  #          y = "Count") +
+  #     theme_bw()
+  # })
   
   output$trend_country <- renderPlot({
     
     # this plot isn't pretty but shows the clear negative linear regression trend.
     
-    pew %>%
-      ggplot(aes(y = fav_china_scale, x = china_export_prop)) +
-      geom_point(alpha = 100, color = "gray") +
-      geom_smooth(method = "glm", formula = y~x) +
-      facet_wrap(~ COUNTRY) +
-      labs(title = "Trends Differ According to Country",
-           x = "Ratio of Chinese Import Value to GDP (in USD)",
-           y = "Attitudes towards China") +
-      theme_bw()
+    # pew %>%
+    #   ggplot(aes(y = fav_china_scale, x = china_export_prop)) +
+    #   geom_point(alpha = 100, color = "gray") +
+    #   geom_smooth(method = "glm", formula = y~x) +
+    #   facet_wrap(~ COUNTRY) +
+    #   labs(title = "Trends Differ According to Country",
+    #        x = "Ratio of Chinese Import Value to GDP (in USD)",
+    #        y = "Attitudes towards China") +
+    #   theme_bw()
+    
+    trend_country
   })
   
   output$trend_G20 <- renderPlot({
@@ -739,103 +779,109 @@ server <- function(input, output) {
     # same principle as above
     
     
-    pew %>%
-      ggplot(aes(y = fav_china_scale, x = china_export_prop)) +
-      geom_point(alpha = 100, color = "lavender") +
-      geom_smooth(method = "glm", formula = y~x) +
-      labs(title = "Yet among the aggregated G20 itself, viwes shift negative",
-           x = "Ratio of Chinese Import Value to GDP (in USD)",
-           y = "Attitudes towards China") +
-      theme_bw()
+    # pew %>%
+    #   ggplot(aes(y = fav_china_scale, x = china_export_prop)) +
+    #   geom_point(alpha = 100, color = "lavender") +
+    #   geom_smooth(method = "glm", formula = y~x) +
+    #   labs(title = "Yet among the aggregated G20 itself, viwes shift negative",
+    #        x = "Ratio of Chinese Import Value to GDP (in USD)",
+    #        y = "Attitudes towards China") +
+    #   theme_bw()
+    
+    trend_g20
   })
   
-  output$distPlot3 <- renderPlot({
-    da36806.0001 %>%
-      ggplot(aes(x = Q45_6, fill = Q1025)) +
-      geom_boxplot() +
-      facet_wrap(~ Q1025) +
-      scale_fill_manual(values = c("salmon", "dodgerblue", "gold", "black")) +
-      scale_fill_discrete(name = "Political Identification",
-                          labels = c("Republican", "Democrat",
-                                     "Independent", "Not asked Party Identification")) +
-      labs(title = "Americans' Feeling Thermometer Towards China ",
-           subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
-       100 = Very Warm; Chicago Council Survey 2016",
-           x = "American Feelings",
-           y = "Count") +
-      theme_bw()
-  })
-  
-  # output$basic_model_posterior <- renderPlot({
-  # new_obs <- tibble(china_export_prop = input$user_percentage)
-  
-  # posterior_predict(basic_export_model, newdata = new_obs) %>%
-  #   as_tibble() %>%
-  #  mutate(across(everything(), as.numeric)) %>%
-  #  ggplot(aes(x = `1`)) +
-  #  geom_histogram(aes(y = after_stat(count/sum(count))),
-  #                 bins = 150, color = "white", fill = "blue")  +
-  #  labs(title = "Predictive Posterior Probability Distribution",
-  #       subtitle = "For a __% change in Chinese Imports by X Country as 
-  #       percentage of GDP",
-  #       x = "Predicted G20 Median Attitude on Favorability Towards China 
-  #       (1 = Very unfavorable, 4 = Very favorable)",
-  #     y = "Probability") +
-  # scale_y_continuous(labels = scales::percent_format()) +
-  #  theme_classic()
+  # output$distPlot3 <- renderPlot({
+  #   da36806.0001 %>%
+  #     ggplot(aes(x = Q45_6, fill = Q1025)) +
+  #     geom_boxplot() +
+  #     facet_wrap(~ Q1025) +
+  #     scale_fill_manual(values = c("salmon", "dodgerblue", "gold", "black")) +
+  #     scale_fill_discrete(name = "Political Identification",
+  #                         labels = c("Republican", "Democrat",
+  #                                    "Independent", "Not asked Party Identification")) +
+  #     labs(title = "Americans' Feeling Thermometer Towards China ",
+  #          subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
+  #      100 = Very Warm; Chicago Council Survey 2016",
+  #          x = "American Feelings",
+  #          y = "Count") +
+  #     theme_bw()
   # })
   
-  output$distPlot4 <- renderPlot({
+  # output$basic_model_posterior <- renderPlot({
+  #   new_obs <- tibble(china_export_prop = input$user_percentage)
+  #   
+  #   posterior_predict(basic_export_model, newdata = new_obs) %>%
+  #   as_tibble() %>%
+  #   mutate(across(everything(), as.numeric)) %>%
+  #   ggplot(aes(x = `1`)) +
+  #   geom_histogram(aes(y = after_stat(count/sum(count))),
+  #                    bins = 150, color = "white", fill = "blue")  +
+  #     labs(title = "Predictive Posterior Probability Distribution",
+  #         subtitle = "For a __% change in Chinese Imports by X Country as 
+  #          percentage of GDP",
+  #         x = "Predicted G20 Median Attitude on Favorability Towards China 
+  #        (1 = Very unfavorable, 4 = Very favorable)",
+  #         y = "Probability") +
+  #     scale_y_continuous(labels = scales::percent_format()) +
+  #    theme_classic()
+  #  })
+  
+# output$distPlot4 <- renderPlot({
     
     # this plot is a base for the one used below with selection criteria
     
-    america_model %>% 
-      as_tibble() %>% 
-      select(-sigma) %>% 
-      mutate(Democrat = `Q1025(2) Democratic`, Republican = `Q1025(1) Republican`,
-             Neither = `Q1025(3) Neither`) %>%
-      pivot_longer(cols = c(`Q1025(2) Democratic`,`Q1025(1) Republican`,
-                            `Q1025(3) Neither`),
-                   names_to = "parameter",
-                   values_to = "Attitude") %>% 
-      ggplot(aes(x = Attitude, color = parameter)) +
-      geom_histogram(aes(y = after_stat(count/sum(count))),
-                     alpha = 0.5, 
-                     bins = 100, 
-                     position = "identity") +
-      scale_color_manual(name = "Party Affiliation",
-                         labels = c("Republican", "Democrat", "Independent"),
-                         values = c("firebrick1", "dodgerblue", "ivory4")) +
-      labs(title = "Posterior Probability Distribution",
-           subtitle = "Average attitude toward China; Chicago Council Survey 2016",
-           x = "Attitude",
-           y = "Probability") +
-      scale_y_continuous(labels = scales::percent_format()) +
-      theme_classic() +
-      geom_vline(xintercept = 50, linetype = 'dashed')
-  })
+    # america_model %>% 
+    #   as_tibble() %>% 
+    #   select(-sigma) %>% 
+    #   mutate(Democrat = `Q1025(2) Democratic`, Republican = `Q1025(1) Republican`,
+    #          Neither = `Q1025(3) Neither`) %>%
+    #   pivot_longer(cols = c(`Q1025(2) Democratic`,`Q1025(1) Republican`,
+    #                         `Q1025(3) Neither`),
+    #                names_to = "parameter",
+    #                values_to = "Attitude") %>% 
+    #   ggplot(aes(x = Attitude, color = parameter)) +
+    #   geom_histogram(aes(y = after_stat(count/sum(count))),
+    #                  alpha = 0.5, 
+    #                  bins = 100, 
+    #                  position = "identity") +
+    #   scale_color_manual(name = "Party Affiliation",
+    #                      labels = c("Republican", "Democrat", "Independent"),
+    #                      values = c("firebrick1", "dodgerblue", "ivory4")) +
+    #   labs(title = "Posterior Probability Distribution",
+    #        subtitle = "Average attitude toward China; Chicago Council Survey 2016",
+    #        x = "Attitude",
+    #        y = "Probability") +
+    #   scale_y_continuous(labels = scales::percent_format()) +
+    #   theme_classic() +
+    #   geom_vline(xintercept = 50, linetype = 'dashed')
+    
+ #   america_model_graph
+ # })
   
   output$basic_plot <- renderPlot({
     
     # this plot shows a basic posterior probability distribution from the chosen
     # model I adopted
     
-    basic_export_model %>% 
-      as_tibble() %>% 
-      ggplot(aes(x = `(Intercept)`)) +
-      geom_histogram(aes(y = after_stat(count/sum(count))),
-                     fill = "lightblue4", 
-                     color = "gray97",
-                     bins = 100) +
-      labs(title = "Posterior Probability Distribution of Global Attitudes 
-         Towards China",
-           subtitle = "Predicted Effect of a 1% increase in Chinese Imports to 
-         GDP ration
-          on Favorability Towards China (1 = Very unfavorable, 
-         4 = Very favorable)",
-           x = "Predicted G20 Attitude Towards China",
-           y = "Probability") +
-      theme_classic()
+    # basic_export_model %>%
+    #   as_tibble() %>%
+    #   ggplot(aes(x = `(Intercept)`)) +
+    #   geom_histogram(aes(y = after_stat(count/sum(count))),
+    #                  fill = "lightblue4",
+    #                  color = "gray97",
+    #                  bins = 100) +
+    #   labs(title = "Posterior Probability Distribution of Global Attitudes
+    #      Towards China",
+    #        subtitle = "Predicted Effect of a 1% increase in Chinese Imports to
+    #      GDP ration
+    #       on Favorability Towards China (1 = Very unfavorable,
+    #      4 = Very favorable)",
+    #        x = "Predicted G20 Attitude Towards China",
+    #        y = "Probability") +
+    #   theme_classic()
+    
+    basic_plot
   })
   
   output$usa_animation <- renderUI({
@@ -851,29 +897,31 @@ server <- function(input, output) {
     
     # based on a plot from chapter 3
     
-    pew %>%
-      group_by(COUNTRY, year) %>%
-      summarize(country_fav_prop = sum(fav_china_logistic, na.rm = TRUE)/n(),
-                country_unfav_prop = sum(fav_china_logistic == 0, na.rm = TRUE)/n()) %>%
-      ggplot(aes(x = year)) +
-      geom_line(aes(y = country_fav_prop, color = "steelblue")) +
-      geom_line(aes(y = country_unfav_prop, color = "darkred")) +
-      facet_wrap(~ COUNTRY) +
-      theme(axis.text = element_text(size = 5),
-            axis.text.x = element_text(angle = 45),
-            strip.text = element_text(size = 7),
-            panel.grid = element_blank(), 
-            panel.spacing.x = unit(3, "mm"),
-            axis.ticks = element_blank()) +
-      scale_x_continuous(breaks = c(2009:2019),
-                         labels = c("2009", "", "", "", "", "", "", "", "", "", "2019")) +
-      labs(title = "Increasingly negative evaluations of China across G20 economies",
-           subtitle = "% who have a(n) view of China",
-           x = "Year",
-           y = "Public Opinion") +
-      scale_color_discrete(name = "Favorable/Unfavorable",
-                           labels = c("Unfavorable", "Favorable")) +
-      theme_linedraw()
+    # pew %>%
+    #   group_by(COUNTRY, year) %>%
+    #   summarize(country_fav_prop = sum(fav_china_logistic, na.rm = TRUE)/n(),
+    #             country_unfav_prop = sum(fav_china_logistic == 0, na.rm = TRUE)/n()) %>%
+    #   ggplot(aes(x = year)) +
+    #   geom_line(aes(y = country_fav_prop, color = "steelblue")) +
+    #   geom_line(aes(y = country_unfav_prop, color = "darkred")) +
+    #   facet_wrap(~ COUNTRY) +
+    #   theme(axis.text = element_text(size = 5),
+    #         axis.text.x = element_text(angle = 45),
+    #         strip.text = element_text(size = 7),
+    #         panel.grid = element_blank(), 
+    #         panel.spacing.x = unit(3, "mm"),
+    #         axis.ticks = element_blank()) +
+    #   scale_x_continuous(breaks = c(2009:2019),
+    #                      labels = c("2009", "", "", "", "", "", "", "", "", "", "2019")) +
+    #   labs(title = "Increasingly negative evaluations of China across G20 economies",
+    #        subtitle = "% who have a(n) view of China",
+    #        x = "Year",
+    #        y = "Public Opinion") +
+    #   scale_color_discrete(name = "Favorable/Unfavorable",
+    #                        labels = c("Unfavorable", "Favorable")) +
+    #   theme_linedraw()
+    
+    country_facet
   })
   
   
@@ -885,37 +933,41 @@ server <- function(input, output) {
       # this code into the right places and giving it the right names as well
       
       output$plot1<-renderPlot({
-        da36806.0001 %>%
-          ggplot(aes(x = Q45_6)) +
-          geom_histogram(fill = "indianred", binwidth = 1) +
-          scale_x_discrete(limits = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
-          labs(title = "Americans' Feeling Thermometer Towards China ",
-               subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
-                100 = Very Warm; Chicago Council Survey 2016",
-               x = "American Feelings",
-               y = "Count") +
-          theme_bw()
+        # da36806.0001 %>%
+        #   ggplot(aes(x = Q45_6)) +
+        #   geom_histogram(fill = "indianred", binwidth = 1) +
+        #   scale_x_discrete(limits = c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)) +
+        #   labs(title = "Americans' Feeling Thermometer Towards China ",
+        #        subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
+        #         100 = Very Warm; Chicago Council Survey 2016",
+        #        x = "American Feelings",
+        #        y = "Count") +
+        #   theme_bw()
+        
+        feeling_therm
       })
       plotOutput("plot1")
     }
     
     
     else if(input$rd=="Attitudes by Party"){
-      output$plot2<-renderPlot({
-        da36806.0001 %>%
-          ggplot(aes(x = Q45_6, fill = Q1025)) +
-          geom_boxplot() +
-          facet_wrap(~ Q1025) +
-          scale_fill_manual(values = c("salmon", "dodgerblue", "gold", "black")) +
-          scale_fill_discrete(name = "Political Identification",
-                              labels = c("Republican", "Democrat",
-                                         "Independent", "Not asked Party Identification")) +
-          labs(title = "Americans' Feeling Thermometer Towards China ",
-               subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
-       100 = Very Warm; Chicago Council Survey 2016",
-               x = "American Feelings",
-               y = "Count") +
-          theme_bw()
+       output$plot2<-renderPlot({
+      #   da36806.0001 %>%
+      #     ggplot(aes(x = Q45_6, fill = Q1025)) +
+      #     geom_boxplot() +
+      #     facet_wrap(~ Q1025) +
+      #     scale_fill_manual(values = c("salmon", "dodgerblue", "gold", "black")) +
+      #     scale_fill_discrete(name = "Political Identification",
+      #                         labels = c("Republican", "Democrat",
+      #                                    "Independent", "Not asked Party Identification")) +
+      #     labs(title = "Americans' Feeling Thermometer Towards China ",
+      #          subtitle = "0 = Very Cold; 50 = Not particuarly Warm or Cold;
+      #  100 = Very Warm; Chicago Council Survey 2016",
+      #          x = "American Feelings",
+      #          y = "Count") +
+      #     theme_bw()
+      
+      party_post
       })
       plotOutput("plot2")
     }
@@ -923,47 +975,51 @@ server <- function(input, output) {
     
     else if(input$rd=="Posterior Probability Distribution by Party"){
       output$plot3<-renderPlot({
-        america_model %>% 
-          as_tibble() %>% 
-          select(-sigma) %>% 
-          mutate(Democrat = `Q1025(2) Democratic`, Republican = `Q1025(1) Republican`,
-                 Neither = `Q1025(3) Neither`) %>%
-          pivot_longer(cols = c(`Q1025(2) Democratic`,`Q1025(1) Republican`,
-                                `Q1025(3) Neither`),
-                       names_to = "parameter",
-                       values_to = "Attitude") %>% 
-          ggplot(aes(x = Attitude, color = parameter)) +
-          geom_histogram(aes(y = after_stat(count/sum(count))),
-                         alpha = 0.5, 
-                         bins = 100, 
-                         position = "identity") +
-          scale_color_manual(name = "Party Affiliation",
-                             labels = c("Republican", "Democrat", "Independent"),
-                             values = c("firebrick1", "dodgerblue", "ivory4")) +
-          labs(title = "Posterior Probability Distribution",
-               subtitle = "Average attitude toward China; Chicago Council Survey 2016",
-               x = "Attitude",
-               y = "Probability") +
-          scale_y_continuous(labels = scales::percent_format()) +
-          theme_classic() +
-          geom_vline(xintercept = 50, linetype = 'dashed')
+        # america_model %>% 
+        #   as_tibble() %>% 
+        #   select(-sigma) %>% 
+        #   mutate(Democrat = `Q1025(2) Democratic`, Republican = `Q1025(1) Republican`,
+        #          Neither = `Q1025(3) Neither`) %>%
+        #   pivot_longer(cols = c(`Q1025(2) Democratic`,`Q1025(1) Republican`,
+        #                         `Q1025(3) Neither`),
+        #                names_to = "parameter",
+        #                values_to = "Attitude") %>% 
+        #   ggplot(aes(x = Attitude, color = parameter)) +
+        #   geom_histogram(aes(y = after_stat(count/sum(count))),
+        #                  alpha = 0.5, 
+        #                  bins = 100, 
+        #                  position = "identity") +
+        #   scale_color_manual(name = "Party Affiliation",
+        #                      labels = c("Republican", "Democrat", "Independent"),
+        #                      values = c("firebrick1", "dodgerblue", "ivory4")) +
+        #   labs(title = "Posterior Probability Distribution",
+        #        subtitle = "Average attitude toward China; Chicago Council Survey 2016",
+        #        x = "Attitude",
+        #        y = "Probability") +
+        #   scale_y_continuous(labels = scales::percent_format()) +
+        #   theme_classic() +
+        #   geom_vline(xintercept = 50, linetype = 'dashed')
+        
+        america_model_graph
       })
       plotOutput("plot3")
     }
     
     else if(input$rd=="Views on the Chinese Military"){
       output$plot4<-renderPlot({
-        anes %>%
-          filter(china_mil %in% c(1, 2, 3)) %>%
-          ggplot(aes(x = china_mil)) +
-          geom_histogram(fill = "firebrick3", binwidth = 1, color = "white") +
-          scale_x_discrete(limits = c("1", "2", "3"),
-                           labels = c("Major threat", "Minor threat", "not a threat")) +
-          labs(title = "Americans' Perspectives on the Chinese Military",
-               subtitle = "Policy and attitudes toward China, ANES Survey 2012",
-               x = "Chinese Military Threat",
-               y = "Count") +
-          theme_bw()
+        # anes %>%
+        #   filter(china_mil %in% c(1, 2, 3)) %>%
+        #   ggplot(aes(x = china_mil)) +
+        #   geom_histogram(fill = "firebrick3", binwidth = 1, color = "white") +
+        #   scale_x_discrete(limits = c("1", "2", "3"),
+        #                    labels = c("Major threat", "Minor threat", "not a threat")) +
+        #   labs(title = "Americans' Perspectives on the Chinese Military",
+        #        subtitle = "Policy and attitudes toward China, ANES Survey 2012",
+        #        x = "Chinese Military Threat",
+        #        y = "Count") +
+        #   theme_bw()
+        
+        anes_graph
       })
       plotOutput("plot4")
     }
