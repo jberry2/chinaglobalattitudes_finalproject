@@ -28,6 +28,18 @@ library(gganimate)
 ## R Markdown
 
 ```{r}
+
+# This gather.rmd is where much of the work actually creating and 
+# troubleshooting my visualizations started. I did the hard work here before
+# copying the needed code to my server in my app itself. Obviously, this didn't
+# quite work as intended and I had to later save everything as PNGs, but you
+# get the point. All of these graphs below were mainly modified from previous
+# code we made or used in class before. For this project, I leaned heavily
+# on the code and skills we practiced in Exam 3 as I quite liked the 
+# facet_wrap plot we made there. The map was a new addition that was made off
+# of handy code I was able to find by troubleshooting and googling around
+# on stackoverflow.
+
 anes <- readstata13::read.dta13("anes_timeseries_2012.dta")
 
 china_mil <-

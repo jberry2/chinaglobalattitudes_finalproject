@@ -15,6 +15,12 @@ library(tidyverse)
 ## R Markdown
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# this rmd is home to my animation, saved as an html. Help and credit for
+# helping with this animation goes to Wyatt Hurt. Essentially, I created
+# and saved an HTML and then removed the title and other information so I could
+# just show the HTML itself in my app.
+
 pew <- readRDS("pew.RDS")
 
 pew %>%

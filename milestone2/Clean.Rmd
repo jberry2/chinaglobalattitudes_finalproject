@@ -39,6 +39,15 @@ Clean up datasets, merge by country, trade as percentage of GDP
 
 ```{r}
 
+# this RMD was where I did all my cleaning. I followed a basic method of first
+# cleaning up each individual year from Pew and then stitching them together
+# at the end with a left_join. To do this I had to make sure that I had all my
+# column and variable names right by going into the word file documentation
+# for each dataset I downloaded from the internet. Then, I renamed the variables
+# to match before doing a left_join. I also used mutate a few times to create
+# new variables, such as numeric scales and also the trade flow value over GDP
+# ratio that I would heavily rely upon in my analysis later.
+
 pew_2019 <- 
 read_sav("Pew Research Center Global Attitudes Spring 2019 Dataset WEB.sav") %>%
   as_factor() %>%

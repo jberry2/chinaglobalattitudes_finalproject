@@ -21,6 +21,12 @@ library(rstanarm)
 ## R Markdown
 
 ```{r}
+
+# this page shows how I made the RDS files and then, eventually, took 
+# screenshots of everything to add as PNGs. No new code was used except for
+# the saveRDS() and the rest of the code was taken from previous work I had 
+# done, mainly in ther server.
+
 anes <- readRDS("chinese_military_threat.rds")
 
 pew <- readRDS("pew.RDS")
@@ -318,7 +324,7 @@ saveRDS(party_post, "party_post.RDS")
       ggplot(aes(y = fav_china_scale, x = china_export_prop)) +
       geom_point(alpha = 100, color = "lavender") +
       geom_smooth(method = "glm", formula = y~x) +
-      labs(title = "Yet among the aggregated G20 itself, viwes shift negative",
+      labs(title = "Yet among the aggregated G20 itself, views shift negative",
            x = "Ratio of Chinese Import Value to GDP (in USD)",
            y = "Attitudes towards China") +
       theme_bw() 
